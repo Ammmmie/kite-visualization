@@ -1,0 +1,472 @@
+:root {
+  --auto-scroll-speed: 36;
+  color: #000;
+  background: #eaeaea;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #eaeaea;
+}
+
+button {
+  font: inherit;
+}
+
+.skeleton-pattern-page {
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  background: #eaeaea;
+}
+
+.skeleton-pattern-stage {
+  --skeleton-scale: min(1, calc(100vw / 1920px));
+  position: relative;
+  width: 100%;
+  max-width: 1920px;
+  height: calc(2935px * var(--skeleton-scale));
+  margin: 0 auto;
+  overflow: hidden;
+  background: #eaeaea;
+}
+
+.skeleton-pattern-stage__canvas {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1920px;
+  height: 2935px;
+  transform: translateX(-50%) scale(var(--skeleton-scale));
+  transform-origin: top center;
+  background: #eaeaea;
+}
+
+.section-title {
+  position: absolute;
+  width: 116px;
+  color: #000;
+}
+
+.section-title__mark {
+  position: absolute;
+  display: block;
+  top: 0;
+  left: 2px;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.section-title h2 {
+  position: absolute;
+  top: 63px;
+  left: 0;
+  margin: 0;
+  font-family: "X-songti", "Songti SC", "SimSun", serif;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+.skeleton-pattern-stage__title-top {
+  left: 72px;
+  top: 77px;
+}
+
+.skeleton-pattern-stage__title-pattern {
+  left: 72px;
+  top: 1246px;
+}
+
+.skeleton-rule {
+  position: absolute;
+  inset: 0 auto auto 0;
+}
+
+.skeleton-rule__shadow,
+.skeleton-rule__title,
+.skeleton-rule__rule,
+.permutation-label {
+  position: absolute;
+  margin: 0;
+  color: #000;
+  letter-spacing: 0;
+}
+
+.skeleton-rule__shadow {
+  left: 72px;
+  width: 149px;
+  font-family: Martel, Georgia, serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.skeleton-rule__shadow p {
+  margin: 0;
+}
+
+.skeleton-rule__title,
+.skeleton-rule__rule {
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.skeleton-rule__title {
+  font-family: "Abhaya Libre Medium", Georgia, serif;
+  font-weight: 400;
+  width: 110px;
+  white-space: nowrap;
+}
+
+.skeleton-rule__rule {
+  width: 183px;
+  font-family: "Abhaya Libre Medium", Georgia, serif;
+}
+
+.skeleton-rule--octagon .skeleton-rule__shadow {
+  top: 327px;
+}
+
+.skeleton-rule--octagon .skeleton-rule__title {
+  left: 84px;
+  top: 613px;
+}
+
+.skeleton-rule--octagon .skeleton-rule__rule {
+  left: 250px;
+  top: 611px;
+}
+
+.skeleton-rule--hexagon .skeleton-rule__shadow {
+  top: 801px;
+}
+
+.skeleton-rule--hexagon .skeleton-rule__title {
+  left: 107px;
+  top: 1111px;
+}
+
+.skeleton-rule--hexagon .skeleton-rule__rule {
+  left: 242px;
+  top: 1110px;
+}
+
+.skeleton-rule__examples {
+  position: absolute;
+  inset: 0;
+}
+
+.skeleton-rule__image-button {
+  position: absolute;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.skeleton-rule__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 220ms ease, filter 220ms ease;
+}
+
+.skeleton-rule__image-button:hover .skeleton-rule__image {
+  transform: translateY(-3px) scale(1.03);
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.1));
+}
+
+.skeleton-rule__transform {
+  position: absolute;
+  left: 1016px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.skeleton-rule__transform img {
+  display: block;
+  width: 904px;
+  height: auto;
+  object-fit: contain;
+}
+
+.skeleton-rule--octagon .skeleton-rule__transform {
+  top: 396px;
+}
+
+.skeleton-rule--hexagon .skeleton-rule__transform {
+  top: 860px;
+}
+
+.skeleton-rule__transform-strip.auto-scroll-strip {
+  position: absolute;
+  left: 1016px;
+  width: 904px;
+}
+
+.skeleton-rule--octagon .skeleton-rule__transform-strip {
+  top: 396px;
+  height: 217px;
+}
+
+.skeleton-rule--hexagon .skeleton-rule__transform-strip {
+  top: 860px;
+  height: 203px;
+}
+
+.permutation-label {
+  left: 69px;
+  top: 1434px;
+  width: 183px;
+  font-family: "Abhaya Libre Medium", Georgia, serif;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.pattern-button {
+  position: absolute;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+  width: 238px;
+  height: 53px;
+  padding: 0 20px;
+  border: 1px solid #fffea3;
+  border-radius: 84px;
+  color: #949494;
+  background: #fffea3;
+  cursor: pointer;
+  font-family: "X-songti", "Songti SC", "SimSun", serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  transition: transform 180ms ease, filter 180ms ease;
+  translate: -50% 0;
+}
+
+.pattern-button:hover {
+  filter: brightness(0.98);
+  transform: translateY(-1px);
+}
+
+.pattern-button:active {
+  transform: translateY(0);
+}
+
+.pattern-button span:last-child {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.pattern-button__icon {
+  position: relative;
+  flex: 0 0 29px;
+  width: 29px;
+  height: 29px;
+  object-fit: contain;
+}
+
+.pattern-button--people,
+.pattern-button--animal,
+.pattern-button--craft {
+  left: 50%;
+}
+
+.pattern-button--people {
+  top: 1492px;
+}
+
+.pattern-button--animal {
+  top: 2020px;
+}
+
+.pattern-button--craft {
+  top: 2501px;
+}
+
+.pattern-strip {
+  position: absolute;
+  left: 0;
+  width: 1920px;
+  overflow: visible;
+  content-visibility: auto;
+  contain-intrinsic-size: 1920px 260px;
+}
+
+.pattern-strip--people {
+  top: 1555px;
+  height: 327px;
+}
+
+.pattern-strip--animal {
+  top: 2126px;
+  height: 321px;
+}
+
+.pattern-strip--craft {
+  top: 2598px;
+  height: 203px;
+}
+
+.auto-scroll-strip {
+  --scroll-gap: 20px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.auto-scroll-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.auto-scroll-strip--dragging {
+  cursor: grabbing;
+}
+
+.auto-scroll-strip__track {
+  display: flex;
+  width: max-content;
+  height: 100%;
+}
+
+.auto-scroll-strip__group {
+  display: flex;
+  align-items: center;
+  gap: var(--scroll-gap);
+  height: 100%;
+  padding-right: var(--scroll-gap);
+}
+
+.auto-scroll-strip__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: inherit;
+}
+
+.auto-scroll-strip__image {
+  display: block;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  transition: transform 220ms ease, filter 220ms ease;
+  transform-origin: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.auto-scroll-strip__item:hover .auto-scroll-strip__image {
+  transform: translateY(-4px) scale(1.035);
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.12));
+}
+
+.auto-scroll-strip__image--skeleton {
+  max-height: 100%;
+}
+
+.auto-scroll-strip__image--pattern {
+  max-height: calc(100% - 24px);
+}
+
+.pattern-strip--people .auto-scroll-strip__image--pattern {
+  max-height: 285px;
+}
+
+.pattern-strip--animal .auto-scroll-strip__image--pattern {
+  max-height: 240px;
+}
+
+.pattern-strip--craft .auto-scroll-strip__image--pattern {
+  max-height: 180px;
+}
+
+.image-lightbox {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 64px;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.image-lightbox__frame {
+  display: grid;
+  place-items: center;
+  width: min(var(--preview-frame-size, 420px), 88vmin);
+  height: min(var(--preview-frame-size, 420px), 88vmin);
+  padding: 24px;
+  background: #fff;
+}
+
+.image-lightbox__image {
+  display: block;
+  width: var(--preview-width, auto);
+  height: var(--preview-height, auto);
+  max-width: calc(100% - 48px);
+  max-height: calc(100% - 48px);
+  object-fit: contain;
+}
+
+.image-lightbox__close {
+  position: fixed;
+  top: 28px;
+  right: 34px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  font-family: Georgia, serif;
+  font-size: 26px;
+  line-height: 1;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.image-lightbox__close:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: scale(1.04);
+}
+
+@media (max-width: 960px) {
+  .image-lightbox {
+    padding: 24px;
+  }
+}

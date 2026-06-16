@@ -1,0 +1,341 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Noto Serif SC", serif;
+  min-height: 100%;
+  background: #0a1219;
+  color: #fff;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.scroll-container {
+  position: relative;
+  height: 320vh;
+}
+
+.hero {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg, #c0cad4 0%, #d4dde5 100%);
+}
+
+.layer {
+  position: absolute;
+  top: -8%;
+  right: -5%;
+  bottom: -8%;
+  left: -5%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  backface-visibility: hidden;
+  pointer-events: none;
+  contain: layout paint;
+  /* will-change 由 script.js 在图层活跃时动态挂载，避免十几层常驻吃显存 */
+}
+
+.sea-bg {
+  z-index: 1;
+  background-image: url("./assert/sea_bg.png");
+}
+
+.sea-front {
+  z-index: 2;
+  display: block;
+  top: -8%;
+  left: -5%;
+  right: auto;
+  bottom: auto;
+  width: 110%;
+  height: 116%;
+  contain: none;
+  background: none;
+}
+
+.sea-cloud {
+  z-index: 3;
+  background-image: url("./assert/sea-cloud.png");
+}
+
+.sky-bg {
+  z-index: 4;
+  background-image: url("./assert/sky_bg.png");
+}
+
+.cloud-back {
+  z-index: 5;
+  background-image: url("./assert/cloud_back.png");
+}
+
+.cloud-mist {
+  z-index: 6;
+  background-image: url("./assert/cloud_mist.png");
+}
+
+.kite-fixed {
+  position: fixed;
+  z-index: 40;
+  top: 0;
+  left: 0;
+  width: clamp(200px, 20vw, 350px);
+  height: clamp(214px, 21.4vw, 374px);
+  background-image: url("./assert/kite.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+  transform-origin: 38% 72%;
+  filter: drop-shadow(0 12px 20px rgba(112, 92, 72, 0.16));
+}
+
+.cloud-left {
+  z-index: 7;
+  background-image: url("./assert/cloud_left.png");
+  background-position: calc(50% - 5vw) calc(50% - 30vh);
+  background-size: 84% auto;
+}
+
+.cloud-right {
+  z-index: 7;
+  background-image: url("./assert/cloud_right.png");
+  background-position: calc(50% + 5vw) calc(50% - 16vh);
+  background-size: 84% auto;
+}
+
+.cloud-front {
+  z-index: 8;
+  background-image: url("./assert/cloud-front.png");
+}
+
+.light-glow {
+  z-index: 6;
+  background-image: url("./assert/light_glow.png");
+  background-position: center calc(50% - 24vh);
+  mix-blend-mode: screen;
+}
+
+.fog-burst {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: none;
+  background: radial-gradient(
+    ellipse 80% 55% at 50% 50%,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.45) 40%,
+    rgba(255, 255, 255, 0) 75%
+  );
+  opacity: 0;
+  pointer-events: none;
+}
+
+.warm-grade {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  background: linear-gradient(180deg, rgba(255, 215, 170, 0.22) 0%, rgba(255, 235, 200, 0.08) 100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  background: radial-gradient(ellipse 85% 85% at 50% 50%, transparent 40%, rgba(10, 18, 30, 0.4) 100%);
+  pointer-events: none;
+}
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(180deg, #c0cad4 0%, #d4dde5 100%);
+  transition: opacity 0.9s ease;
+}
+
+.loader.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader-mark {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: rgba(30, 55, 75, 0.55);
+  margin-bottom: 22px;
+}
+
+.loader-track {
+  width: 140px;
+  height: 1px;
+  background: rgba(30, 55, 75, 0.18);
+  overflow: hidden;
+}
+
+.loader-fill {
+  height: 100%;
+  width: 0%;
+  background: rgba(30, 55, 75, 0.6);
+  transition: width 0.3s ease;
+}
+
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 0%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(160, 200, 220, 0.7) 0%, rgba(255, 220, 170, 0.9) 100%);
+}
+
+.ui {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.label-sea {
+  position: absolute;
+  bottom: 44px;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: rgba(30, 55, 75, 0.75);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 13px;
+  font-style: italic;
+  letter-spacing: 0.55em;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+}
+
+.label-sea::after {
+  width: 1px;
+  height: 40px;
+  background: currentColor;
+  content: "";
+  animation: drip 2s ease-in-out infinite;
+  transform-origin: top;
+}
+
+@keyframes drip {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+
+.title-sky {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.farm-scroll {
+  position: relative;
+  z-index: 30;
+  height: 220vh;
+  margin-top: -130vh;
+  background: transparent;
+}
+
+.farm-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  opacity: 0;
+  background: transparent;
+  will-change: opacity;
+}
+
+.farm-bg,
+.farm-front,
+.farm-haze {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.farm-bg {
+  inset: -8%;
+  will-change: transform, opacity;
+}
+
+.farm-bg img,
+.farm-front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.farm-front {
+  inset: -2% -2% -6%;
+  z-index: 3;
+  will-change: transform, opacity;
+}
+
+.farm-haze {
+  z-index: 2;
+  display: none;
+  opacity: 0;
+  background: none;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-container {
+    height: 100vh;
+  }
+
+  .title-sky {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .label-sea {
+    display: none;
+  }
+}

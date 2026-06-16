@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="loader" id="loader">
+      <div class="loader-mark">Rising</div>
+      <div class="loader-track"><div class="loader-fill" id="loaderFill"></div></div>
+    </div>
+
+    <div class="progress-bar" id="bar"></div>
+
+    <div class="kite-fixed" id="kite"></div>
+
+    <div class="scroll-container">
+      <div class="hero">
+        <div
+          class="layer sea-bg"
+          data-from-y="0"
+          data-to-y="30"
+          data-from-s="1"
+          data-to-s="1.05"
+          data-from-o="1"
+          data-to-o="0"
+          data-o-start="0.15"
+          data-o-end="0.75"
+        ></div>
+
+        <canvas
+          id="seaCanvas"
+          class="layer sea-front"
+          data-from-y="0"
+          data-to-y="30"
+          data-from-s="1"
+          data-to-s="1.05"
+          data-from-o="1"
+          data-to-o="0"
+          data-o-start="0.15"
+          data-o-end="0.75"
+        ></canvas>
+
+        <div
+          class="layer sea-cloud"
+          data-from-y="0"
+          data-to-y="44"
+          data-from-s="1"
+          data-to-s="1.22"
+          data-from-o="1"
+          data-to-o="0"
+          data-o-start="0.1"
+          data-o-end="0.7"
+        ></div>
+
+        <div
+          class="layer sky-bg"
+          data-from-y="-40"
+          data-to-y="0"
+          data-from-s="1.08"
+          data-to-s="1"
+          data-from-o="0"
+          data-to-o="1"
+          data-o-start="0.18"
+          data-o-end="0.46"
+          data-ease="out"
+        ></div>
+
+        <div
+          class="layer cloud-back"
+          data-from-y="40"
+          data-to-y="0"
+          data-from-s="1.02"
+          data-to-s="1"
+          data-from-o="0"
+          data-to-o="0.7"
+          data-o-start="0.24"
+          data-o-end="0.52"
+          data-ease="out"
+        ></div>
+
+        <div
+          class="layer cloud-mist"
+          data-from-y="-10"
+          data-to-y="0"
+          data-from-s="1.2"
+          data-to-s="1"
+          data-from-o="0"
+          data-to-o="1"
+          data-o-start="0.30"
+          data-o-end="0.58"
+          data-ease="out"
+        ></div>
+
+        <div
+          class="layer cloud-left"
+          data-from-y="-14"
+          data-to-y="2"
+          data-from-x="-28"
+          data-to-x="0"
+          data-from-s="1.04"
+          data-to-s="1"
+          data-from-o="0"
+          data-to-o="1"
+          data-o-start="0.42"
+          data-o-end="0.70"
+          data-ease="out"
+        ></div>
+
+        <div
+          class="layer cloud-right"
+          data-from-y="-12"
+          data-to-y="2"
+          data-from-x="28"
+          data-to-x="0"
+          data-from-s="1.04"
+          data-to-s="1"
+          data-from-o="0"
+          data-to-o="1"
+          data-o-start="0.36"
+          data-o-end="0.64"
+          data-ease="out"
+        ></div>
+
+        <div
+          class="layer cloud-front"
+          data-from-y="-44"
+          data-to-y="0"
+          data-from-s="1.14"
+          data-to-s="1"
+          data-from-o="0"
+          data-to-o="1"
+          data-o-start="0.48"
+          data-o-end="0.76"
+          data-ease="out"
+        ></div>
+
+        <div
+          class="layer light-glow"
+          data-from-y="-16"
+          data-to-y="0"
+          data-from-s="0.85"
+          data-to-s="1"
+          data-from-o="0"
+          data-to-o="1"
+          data-o-start="0.54"
+          data-o-end="0.80"
+          data-ease="out"
+        ></div>
+
+        <div class="fog-burst" id="fog"></div>
+        <div class="warm-grade" id="warm"></div>
+        <div class="vignette"></div>
+
+        <div class="ui">
+          <div class="label-sea" id="seaLabel">Scroll</div>
+
+          <div class="title-sky" id="skyTitle"></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="farm-scroll" id="farmScroll">
+      <div class="farm-stage" id="farmStage">
+        <div class="farm-bg" id="farmBg">
+          <img src="./assert/farm-bg.png" alt="" />
+        </div>
+        <div class="farm-haze" id="farmHaze"></div>
+        <div class="farm-front" id="farmFront">
+          <img src="./assert/farm-front.png" alt="" />
+        </div>
+      </div>
+    </section>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

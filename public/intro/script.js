@@ -183,9 +183,9 @@
       "precision mediump float;varying vec2 v_uv;" +
       "uniform sampler2D u_tex;uniform float u_time;uniform float u_alpha;uniform bool u_ready;" +
       // 可调参数（取自需求建议区间的中间值，平静镜面湖）
-      "const float WAVE_HEIGHT=0.032;" +      // 波纹幅度（调低，海面更平）
-      "const float WAVE_SPEED=0.80;" +        // 流动速度（调快）
-      "const float NORMAL_STRENGTH=0.09;" +   // 法线强度（调低，起伏更平）
+      "const float WAVE_HEIGHT=0.040;" +      // 波纹幅度（调低，海面更平）
+      "const float WAVE_SPEED=0.95;" +        // 流动速度（调快）
+      "const float NORMAL_STRENGTH=0.15;" +   // 法线强度（调低，起伏更平）
       "const float REFLECT_DISTORT=0.045;" +  // 倒影扭曲（随之略降）
       "const float FRESNEL_POWER=3.0;" +      // Fresnel 幂 2.0-4.0
       "const float SHIMMER=0.06;" +           // 柔和高光强度

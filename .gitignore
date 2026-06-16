@@ -1,3 +1,6 @@
 node_modules/
 dist/
 vite-dev.log
+vite-dev.err.log
+.DS_Store
+banyao-diy-demo/

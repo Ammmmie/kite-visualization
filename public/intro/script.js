@@ -66,7 +66,7 @@
     mainSiteRequested = true;
     const target =
       window.location.protocol === "file:"
-        ? "http://localhost:5174/?intro=1"
+        ? "http://localhost:5173/?intro=1"
         : `${window.location.origin}/?intro=1`;
     window.location.href = target;
   }

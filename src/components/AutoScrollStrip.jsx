@@ -23,6 +23,7 @@ export default function AutoScrollStrip({
   const isDraggingRef = useRef(false);
   const activePointerIdRef = useRef(null);
   const dragStartXRef = useRef(0);
+  const dragStartYRef = useRef(0);
   const dragStartScrollRef = useRef(0);
   const suppressClickRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -111,6 +112,7 @@ export default function AutoScrollStrip({
       activePointerIdRef.current = event.pointerId;
       suppressClickRef.current = false;
       dragStartXRef.current = event.clientX;
+      dragStartYRef.current = event.clientY;
       dragStartScrollRef.current = strip.scrollLeft;
     },
     [draggable]
@@ -128,7 +130,16 @@ export default function AutoScrollStrip({
       }
 
       const deltaX = event.clientX - dragStartXRef.current;
-      if (Math.abs(deltaX) > 5) {
+      const deltaY = event.clientY - dragStartYRef.current;
+
+      if (!isDraggingRef.current && Math.abs(deltaY) > 8 && Math.abs(deltaY) > Math.abs(deltaX)) {
+        isPointerDownRef.current = false;
+        activePointerIdRef.current = null;
+        isPausedRef.current = Boolean(pauseOnHover && strip.matches(":hover"));
+        return;
+      }
+
+      if (Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
         suppressClickRef.current = true;
         if (!isDraggingRef.current) {
           isDraggingRef.current = true;
@@ -141,6 +152,27 @@ export default function AutoScrollStrip({
         strip.scrollLeft = dragStartScrollRef.current - deltaX;
         normalizeScroll();
       }
+    },
+    [normalizeScroll, pauseOnHover]
+  );
+
+  const handleWheel = useCallback(
+    (event) => {
+      const strip = stripRef.current;
+      if (!strip) {
+        return;
+      }
+
+      const isVerticalGesture = Math.abs(event.deltaY) >= Math.abs(event.deltaX);
+      if (isVerticalGesture) {
+        event.preventDefault();
+        window.scrollBy({ top: event.deltaY, left: 0, behavior: "auto" });
+        return;
+      }
+
+      event.preventDefault();
+      strip.scrollLeft += event.deltaX;
+      normalizeScroll();
     },
     [normalizeScroll]
   );
@@ -199,6 +231,7 @@ export default function AutoScrollStrip({
       onPointerMove={handlePointerMove}
       onPointerUp={stopDrag}
       onPointerCancel={stopDrag}
+      onWheel={handleWheel}
     >
       <div className="auto-scroll-strip__track">
         {[0, 1].map((groupIndex) => (

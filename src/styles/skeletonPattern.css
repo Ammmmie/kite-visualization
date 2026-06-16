@@ -15,11 +15,14 @@ body,
 #root {
   width: 100%;
   overflow-x: hidden;
+  overflow-y: visible;
 }
 
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100vh;
+  overflow-y: auto !important;
   background: #eaeaea;
 }
 
@@ -28,18 +31,18 @@ button {
 }
 
 .skeleton-pattern-page {
-  min-height: 100vh;
+  min-height: max(100vh, var(--skeleton-page-min-height, 100vh));
   width: 100%;
   overflow-x: hidden;
   background: #eaeaea;
 }
 
 .skeleton-pattern-stage {
-  --skeleton-scale: min(1, calc(100vw / 1920px));
+  --skeleton-scale: 1;
   position: relative;
   width: 100%;
   max-width: 1920px;
-  height: calc(2935px * var(--skeleton-scale));
+  height: 2935px;
   margin: 0 auto;
   overflow: hidden;
   background: #eaeaea;
@@ -468,5 +471,11 @@ button {
 @media (max-width: 960px) {
   .image-lightbox {
     padding: 24px;
+  }
+}
+
+@media (max-width: 1920px) {
+  .skeleton-pattern-stage {
+    height: 152.864583vw;
   }
 }

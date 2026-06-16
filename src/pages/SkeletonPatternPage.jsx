@@ -1,10 +1,12 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ImageLightbox from "../components/ImageLightbox.jsx";
 import PatternButton from "../components/PatternButton.jsx";
 import PatternStrip from "../components/PatternStrip.jsx";
 import ProcessIntroSection from "../components/ProcessIntroSection.jsx";
 import SectionTitle from "../components/SectionTitle.jsx";
 import SkeletonRuleBlock from "../components/SkeletonRuleBlock.jsx";
+import { KiteDIYPage } from "../diy/components/KiteDIYPage";
+import "../diy/styles/kite-diy.css";
 
 const assets = {
   ...import.meta.glob("../assets/figma/*.{png,jpg,jpeg,webp}", {
@@ -118,6 +120,37 @@ const buttonIcon = figmaAsset("\u5c0ficon2.png");
 
 export default function SkeletonPatternPage() {
   const [preview, setPreview] = useState(null);
+  const stageRef = useRef(null);
+
+  useEffect(() => {
+    const updateStageScale = () => {
+      const stage = stageRef.current;
+      if (!stage) {
+        return;
+      }
+
+      stage.style.setProperty(
+        "--skeleton-scale",
+        String(Math.min(1, window.innerWidth / 1920))
+      );
+      document.documentElement.style.setProperty(
+        "--skeleton-page-min-height",
+        `${stage.offsetTop + stage.offsetHeight}px`
+      );
+      document.documentElement.style.overflowY = "auto";
+      document.documentElement.style.overflow = "auto";
+      document.body.style.overflowY = "auto";
+      document.body.style.overflow = "auto";
+      document.body.style.minHeight = `${stage.offsetTop + stage.offsetHeight}px`;
+    };
+
+    updateStageScale();
+    window.addEventListener("resize", updateStageScale);
+
+    return () => {
+      window.removeEventListener("resize", updateStageScale);
+    };
+  }, []);
 
   const openPreview = useCallback((item) => {
     setPreview(item);
@@ -136,92 +169,95 @@ export default function SkeletonPatternPage() {
   }, []);
 
   return (
-    <main className="skeleton-pattern-page">
-      <ProcessIntroSection />
+    <>
+      <main className="skeleton-pattern-page">
+        <ProcessIntroSection />
 
-      <div className="skeleton-pattern-stage">
-        <div className="skeleton-pattern-stage__canvas">
-          <SectionTitle className="skeleton-pattern-stage__title-top" icon={titleIcon}>
-            {labels.skeletonTopA}
-            <br />
-            {labels.skeletonTopB}
-          </SectionTitle>
+        <div className="skeleton-pattern-stage" ref={stageRef}>
+          <div className="skeleton-pattern-stage__canvas">
+            <SectionTitle className="skeleton-pattern-stage__title-top" icon={titleIcon}>
+              {labels.skeletonTopA}
+              <br />
+              {labels.skeletonTopB}
+            </SectionTitle>
 
-          <SkeletonRuleBlock
-            className="skeleton-rule--octagon"
-            title={labels.octagonTitle}
-            shadowText="octagonal star shape"
-            ruleText="Extension rule"
-            images={octagonImages}
-            transformItems={octagonItems}
-            onImageClick={openPreview}
-          />
+            <SkeletonRuleBlock
+              className="skeleton-rule--octagon"
+              title={labels.octagonTitle}
+              shadowText="octagonal star shape"
+              ruleText="Extension rule"
+              images={octagonImages}
+              transformItems={octagonItems}
+              onImageClick={openPreview}
+            />
 
-          <SkeletonRuleBlock
-            className="skeleton-rule--hexagon"
-            title={labels.hexagonTitle}
-            shadowText="octagonal star shape"
-            ruleText="Extension rule"
-            images={hexagonImages}
-            transformItems={hexagonItems}
-            onImageClick={openPreview}
-          />
+            <SkeletonRuleBlock
+              className="skeleton-rule--hexagon"
+              title={labels.hexagonTitle}
+              shadowText="octagonal star shape"
+              ruleText="Extension rule"
+              images={hexagonImages}
+              transformItems={hexagonItems}
+              onImageClick={openPreview}
+            />
 
-          <SectionTitle className="skeleton-pattern-stage__title-pattern" icon={titleIcon}>
-            {labels.patternTopA}
-            <br />
-            {labels.patternTopB}
-          </SectionTitle>
-          <p className="permutation-label">Permutation graphic</p>
+            <SectionTitle className="skeleton-pattern-stage__title-pattern" icon={titleIcon}>
+              {labels.patternTopA}
+              <br />
+              {labels.patternTopB}
+            </SectionTitle>
+            <p className="permutation-label">Permutation graphic</p>
 
-          <PatternButton
-            className="pattern-button--people"
-            icon={buttonIcon}
-            onClick={() => scrollToStrip("people-pattern-strip")}
-          >
-            {labels.people}
-          </PatternButton>
-          <PatternStrip
-            id="people-pattern-strip"
-            className="pattern-strip--people"
-            label={labels.people}
-            detailItems={peopleItems}
-            onImageClick={openPreview}
-          />
+            <PatternButton
+              className="pattern-button--people"
+              icon={buttonIcon}
+              onClick={() => scrollToStrip("people-pattern-strip")}
+            >
+              {labels.people}
+            </PatternButton>
+            <PatternStrip
+              id="people-pattern-strip"
+              className="pattern-strip--people"
+              label={labels.people}
+              detailItems={peopleItems}
+              onImageClick={openPreview}
+            />
 
-          <PatternButton
-            className="pattern-button--animal"
-            icon={buttonIcon}
-            onClick={() => scrollToStrip("animal-pattern-strip")}
-          >
-            {labels.animal}
-          </PatternButton>
-          <PatternStrip
-            id="animal-pattern-strip"
-            className="pattern-strip--animal"
-            label={labels.animal}
-            detailItems={animalItems}
-            onImageClick={openPreview}
-          />
+            <PatternButton
+              className="pattern-button--animal"
+              icon={buttonIcon}
+              onClick={() => scrollToStrip("animal-pattern-strip")}
+            >
+              {labels.animal}
+            </PatternButton>
+            <PatternStrip
+              id="animal-pattern-strip"
+              className="pattern-strip--animal"
+              label={labels.animal}
+              detailItems={animalItems}
+              onImageClick={openPreview}
+            />
 
-          <PatternButton
-            className="pattern-button--craft"
-            icon={buttonIcon}
-            onClick={() => scrollToStrip("craft-pattern-strip")}
-          >
-            {labels.craft}
-          </PatternButton>
-          <PatternStrip
-            id="craft-pattern-strip"
-            className="pattern-strip--craft"
-            label={labels.craft}
-            detailItems={craftItems}
-            onImageClick={openPreview}
-          />
+            <PatternButton
+              className="pattern-button--craft"
+              icon={buttonIcon}
+              onClick={() => scrollToStrip("craft-pattern-strip")}
+            >
+              {labels.craft}
+            </PatternButton>
+            <PatternStrip
+              id="craft-pattern-strip"
+              className="pattern-strip--craft"
+              label={labels.craft}
+              detailItems={craftItems}
+              onImageClick={openPreview}
+            />
+          </div>
         </div>
-      </div>
 
-      <ImageLightbox image={preview?.src} alt={preview?.alt} onClose={closePreview} />
-    </main>
+        <ImageLightbox image={preview?.src} alt={preview?.alt} onClose={closePreview} />
+      </main>
+      <KiteDIYPage />
+    </>
   );
 }

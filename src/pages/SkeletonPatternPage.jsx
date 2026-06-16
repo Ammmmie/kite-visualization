@@ -5,6 +5,7 @@ import PatternStrip from "../components/PatternStrip.jsx";
 import ProcessIntroSection from "../components/ProcessIntroSection.jsx";
 import SectionTitle from "../components/SectionTitle.jsx";
 import SkeletonRuleBlock from "../components/SkeletonRuleBlock.jsx";
+import SoundInteractionSection from "../components/SoundInteractionSection.jsx";
 import { KiteDIYPage } from "../diy/components/KiteDIYPage";
 import "../diy/styles/kite-diy.css";
 
@@ -258,6 +259,7 @@ export default function SkeletonPatternPage() {
         <ImageLightbox image={preview?.src} alt={preview?.alt} onClose={closePreview} />
       </main>
       <KiteDIYPage />
+      <SoundInteractionSection />
     </>
   );
 }

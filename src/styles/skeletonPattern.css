@@ -479,3 +479,30 @@ button {
     height: 152.864583vw;
   }
 }
+
+.sound-interaction-section {
+  width: 100%;
+  min-height: 100vh;
+  padding: 0;
+  background: #9bc9e8;
+}
+
+.sound-interaction-section__frame {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.sound-interaction-section__iframe {
+  display: block;
+  width: 100%;
+  height: 100vh;
+  min-height: 720px;
+  border: 0;
+  background: #9bc9e8;
+}
+
+@media (max-width: 960px) {
+  .sound-interaction-section__iframe {
+    min-height: 620px;
+  }
+}

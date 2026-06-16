@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import FlowSection from "../components/FlowSection.jsx";
 import ImageLightbox from "../components/ImageLightbox.jsx";
 import PatternButton from "../components/PatternButton.jsx";
 import PatternStrip from "../components/PatternStrip.jsx";
@@ -121,7 +122,9 @@ const buttonIcon = figmaAsset("\u5c0ficon2.png");
 
 export default function SkeletonPatternPage() {
   const [preview, setPreview] = useState(null);
+  const [kepuUnlocked, setKepuUnlocked] = useState(false);
   const stageRef = useRef(null);
+  const kepuScrollRef = useRef(null);
 
   useEffect(() => {
     const updateStageScale = () => {
@@ -134,15 +137,6 @@ export default function SkeletonPatternPage() {
         "--skeleton-scale",
         String(Math.min(1, window.innerWidth / 1920))
       );
-      document.documentElement.style.setProperty(
-        "--skeleton-page-min-height",
-        `${stage.offsetTop + stage.offsetHeight}px`
-      );
-      document.documentElement.style.overflowY = "auto";
-      document.documentElement.style.overflow = "auto";
-      document.body.style.overflowY = "auto";
-      document.body.style.overflow = "auto";
-      document.body.style.minHeight = `${stage.offsetTop + stage.offsetHeight}px`;
     };
 
     updateStageScale();
@@ -169,97 +163,152 @@ export default function SkeletonPatternPage() {
     });
   }, []);
 
-  return (
-    <>
-      <main className="skeleton-pattern-page">
-        <ProcessIntroSection />
+  const updateKepuUnlockState = useCallback(() => {
+    const container = kepuScrollRef.current;
+    if (!container) {
+      return;
+    }
 
-        <div className="skeleton-pattern-stage" ref={stageRef}>
-          <div className="skeleton-pattern-stage__canvas">
-            <SectionTitle className="skeleton-pattern-stage__title-top" icon={titleIcon}>
-              {labels.skeletonTopA}
-              <br />
-              {labels.skeletonTopB}
-            </SectionTitle>
+    if (container.scrollTop + container.clientHeight >= container.scrollHeight - 40) {
+      setKepuUnlocked(true);
+    }
+  }, []);
 
-            <SkeletonRuleBlock
-              className="skeleton-rule--octagon"
-              title={labels.octagonTitle}
-              shadowText="octagonal star shape"
-              ruleText="Extension rule"
-              images={octagonImages}
-              transformItems={octagonItems}
-              onImageClick={openPreview}
-            />
+  useEffect(() => {
+    updateKepuUnlockState();
+  }, [updateKepuUnlockState]);
 
-            <SkeletonRuleBlock
-              className="skeleton-rule--hexagon"
-              title={labels.hexagonTitle}
-              shadowText="octagonal star shape"
-              ruleText="Extension rule"
-              images={hexagonImages}
-              transformItems={hexagonItems}
-              onImageClick={openPreview}
-            />
+  const renderKepuPane = ({ goNext }) => (
+    <div className="flow-pane flow-pane--kepu">
+      <div
+        className="flow-pane__scroll flow-pane__scroll--kepu"
+        onScroll={updateKepuUnlockState}
+        ref={kepuScrollRef}
+      >
+        <main className="skeleton-pattern-page">
+          <ProcessIntroSection />
 
-            <SectionTitle className="skeleton-pattern-stage__title-pattern" icon={titleIcon}>
-              {labels.patternTopA}
-              <br />
-              {labels.patternTopB}
-            </SectionTitle>
-            <p className="permutation-label">Permutation graphic</p>
+          <div className="skeleton-pattern-stage" ref={stageRef}>
+            <div className="skeleton-pattern-stage__canvas">
+              <SectionTitle className="skeleton-pattern-stage__title-top" icon={titleIcon}>
+                {labels.skeletonTopA}
+                <br />
+                {labels.skeletonTopB}
+              </SectionTitle>
 
-            <PatternButton
-              className="pattern-button--people"
-              icon={buttonIcon}
-              onClick={() => scrollToStrip("people-pattern-strip")}
-            >
-              {labels.people}
-            </PatternButton>
-            <PatternStrip
-              id="people-pattern-strip"
-              className="pattern-strip--people"
-              label={labels.people}
-              detailItems={peopleItems}
-              onImageClick={openPreview}
-            />
+              <SkeletonRuleBlock
+                className="skeleton-rule--octagon"
+                title={labels.octagonTitle}
+                shadowText="octagonal star shape"
+                ruleText="Extension rule"
+                images={octagonImages}
+                transformItems={octagonItems}
+                onImageClick={openPreview}
+              />
 
-            <PatternButton
-              className="pattern-button--animal"
-              icon={buttonIcon}
-              onClick={() => scrollToStrip("animal-pattern-strip")}
-            >
-              {labels.animal}
-            </PatternButton>
-            <PatternStrip
-              id="animal-pattern-strip"
-              className="pattern-strip--animal"
-              label={labels.animal}
-              detailItems={animalItems}
-              onImageClick={openPreview}
-            />
+              <SkeletonRuleBlock
+                className="skeleton-rule--hexagon"
+                title={labels.hexagonTitle}
+                shadowText="octagonal star shape"
+                ruleText="Extension rule"
+                images={hexagonImages}
+                transformItems={hexagonItems}
+                onImageClick={openPreview}
+              />
 
-            <PatternButton
-              className="pattern-button--craft"
-              icon={buttonIcon}
-              onClick={() => scrollToStrip("craft-pattern-strip")}
-            >
-              {labels.craft}
-            </PatternButton>
-            <PatternStrip
-              id="craft-pattern-strip"
-              className="pattern-strip--craft"
-              label={labels.craft}
-              detailItems={craftItems}
-              onImageClick={openPreview}
-            />
+              <SectionTitle className="skeleton-pattern-stage__title-pattern" icon={titleIcon}>
+                {labels.patternTopA}
+                <br />
+                {labels.patternTopB}
+              </SectionTitle>
+              <p className="permutation-label">Permutation graphic</p>
+
+              <PatternButton
+                className="pattern-button--people"
+                icon={buttonIcon}
+                onClick={() => scrollToStrip("people-pattern-strip")}
+              >
+                {labels.people}
+              </PatternButton>
+              <PatternStrip
+                id="people-pattern-strip"
+                className="pattern-strip--people"
+                label={labels.people}
+                detailItems={peopleItems}
+                onImageClick={openPreview}
+              />
+
+              <PatternButton
+                className="pattern-button--animal"
+                icon={buttonIcon}
+                onClick={() => scrollToStrip("animal-pattern-strip")}
+              >
+                {labels.animal}
+              </PatternButton>
+              <PatternStrip
+                id="animal-pattern-strip"
+                className="pattern-strip--animal"
+                label={labels.animal}
+                detailItems={animalItems}
+                onImageClick={openPreview}
+              />
+
+              <PatternButton
+                className="pattern-button--craft"
+                icon={buttonIcon}
+                onClick={() => scrollToStrip("craft-pattern-strip")}
+              >
+                {labels.craft}
+              </PatternButton>
+              <PatternStrip
+                id="craft-pattern-strip"
+                className="pattern-strip--craft"
+                label={labels.craft}
+                detailItems={craftItems}
+                onImageClick={openPreview}
+              />
+            </div>
           </div>
-        </div>
 
-        <ImageLightbox image={preview?.src} alt={preview?.alt} onClose={closePreview} />
-      </main>
-      <KiteDIYPage />
-      <SoundInteractionSection />
-    </>
+          <div className={`kepu-next-cta${kepuUnlocked ? " is-visible" : ""}`}>
+            <button
+              className="kepu-next-cta__button"
+              onClick={() => {
+                if (kepuUnlocked) {
+                  goNext();
+                }
+              }}
+              type="button"
+            >
+              {"\u5f00\u59cb\u5236\u4f5c"}
+            </button>
+          </div>
+        </main>
+      </div>
+
+      <ImageLightbox image={preview?.src} alt={preview?.alt} onClose={closePreview} />
+    </div>
+  );
+
+  return (
+    <FlowSection
+      canEnterStep={(targetStep) => targetStep !== 1 || kepuUnlocked}
+      className="skeleton-pattern-flow"
+    >
+      {({ goNext }) => renderKepuPane({ goNext })}
+      {({ goNext, goTo }) => (
+        <div className="flow-pane flow-pane--diy">
+          <KiteDIYPage mode="standalone" onBack={() => goTo(0)} onFinish={goNext} />
+        </div>
+      )}
+      {({ goTo }) => (
+        <div className="flow-pane flow-pane--sound">
+          <button className="flow-pane__back-chip" onClick={() => goTo(1)} type="button">
+            {"\u8fd4\u56de\u5236\u4f5c"}
+          </button>
+          <SoundInteractionSection />
+        </div>
+      )}
+    </FlowSection>
   );
 }

@@ -15,16 +15,22 @@ import { WhistlePanel } from "./panels/WhistlePanel";
 import { KitePreview } from "./preview/KitePreview";
 
 const panelLabels: Record<PanelKey, string> = {
-  frame: "骨架",
-  surface: "筝面",
-  whistle: "哨口",
+  frame: "\u9aa8\u67b6",
+  surface: "\u7b5d\u9762",
+  whistle: "\u54e8\u53e3",
 };
 
 interface KiteDIYPageProps {
   mode?: "embedded" | "standalone";
+  onBack?: () => void;
+  onFinish?: () => void;
 }
 
-export function KiteDIYPage({ mode = "embedded" }: KiteDIYPageProps) {
+export function KiteDIYPage({
+  mode = "embedded",
+  onBack,
+  onFinish,
+}: KiteDIYPageProps) {
   const isStandalone = mode === "standalone";
   const [config, setConfig] = useState<KiteDIYConfig>(() => createDefaultKiteDIYConfig());
   const [previewEnabled, setPreviewEnabled] = useState(false);
@@ -146,7 +152,7 @@ export function KiteDIYPage({ mode = "embedded" }: KiteDIYPageProps) {
   return (
     <section className={`diy-page ${isStandalone ? "diy-page-standalone" : "diy-page-embedded"}`}>
       <div className="diy-stage">
-        <h1 className="visually-hidden">南通板鹞风筝 DIY Demo</h1>
+        <h1 className="visually-hidden">{"\u5357\u901a\u677f\u9e5e\u98ce\u7b5d DIY Demo"}</h1>
 
         <KitePreview
           config={previewConfig}
@@ -157,7 +163,7 @@ export function KiteDIYPage({ mode = "embedded" }: KiteDIYPageProps) {
           whistlesEnabled={whistlesEnabled}
         />
 
-        <aside className="control-panel" aria-label="参数选择面板">
+        <aside className="control-panel" aria-label="\u53c2\u6570\u9009\u62e9\u9762\u677f">
           <AccordionSection
             isOpen={config.activePanel === "frame"}
             label={panelLabels.frame}
@@ -203,12 +209,16 @@ export function KiteDIYPage({ mode = "embedded" }: KiteDIYPageProps) {
 
         {isStandalone ? (
           <>
-            <button className="diy-action-button diy-back-button" type="button">
-              <span aria-hidden="true">←</span>
-              返回
+            <button className="diy-action-button diy-back-button" onClick={onBack} type="button">
+              <span aria-hidden="true">{"\u2190"}</span>
+              {"\u8fd4\u56de"}
             </button>
-            <button className="diy-action-button diy-finish-button" type="button">
-              完成
+            <button
+              className="diy-action-button diy-finish-button"
+              onClick={onFinish}
+              type="button"
+            >
+              {"\u5b8c\u6210"}
             </button>
           </>
         ) : null}

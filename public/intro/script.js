@@ -457,7 +457,7 @@
       const farmProgress = easeInOut(farmRaw);
       // 农庄素材顶部带半透明浅色天空，长时间整屏淡入会像一块白色遮罩。
       // 等云层真正散开后再用较短的过渡接入农庄，保留浮现感但避免大面积泛白。
-      const farmReveal = segEaseBy("out", farmRaw, 0.32, 0.5);
+      const farmReveal = segEaseBy("out", farmRaw, 0.12, 0.42);
       const bgScale = lerp(1.12, 1, farmProgress);
       const bgY = lerp(3, -2, farmProgress);
       const frontY = lerp(52, -34, farmProgress);

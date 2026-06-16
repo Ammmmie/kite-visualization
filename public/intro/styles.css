@@ -13,7 +13,7 @@ html {
 body {
   font-family: "Noto Serif SC", serif;
   min-height: 100%;
-  background: #0a1219;
+  background: #d4dde5;
   color: #fff;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -286,7 +286,7 @@ body {
   height: 100vh;
   overflow: hidden;
   opacity: 0;
-  background: transparent;
+  background: #cdd8dc;
   will-change: opacity;
 }
 

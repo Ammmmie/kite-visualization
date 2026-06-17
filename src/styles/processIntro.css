@@ -1,7 +1,8 @@
 .process-intro-section {
+  --process-scale: min(1, calc(100vw / 1920px));
   position: relative;
   width: 100%;
-  height: clamp(760px, 72vw, 1040px);
+  height: clamp(560px, 43vw, 760px);
   overflow: hidden;
   background: #eaeaea;
 }
@@ -9,11 +10,13 @@
 .process-title-block {
   position: absolute;
   z-index: 3;
-  left: clamp(28px, 3.7vw, 72px);
-  top: clamp(42px, 4vw, 76px);
-  width: 170px;
+  left: clamp(28px, 3.75vw, 72px);
+  top: clamp(42px, 4vw, 77px);
+  width: 116px;
   height: 230px;
   color: #000;
+  transform: scale(var(--process-scale));
+  transform-origin: top left;
 }
 
 .process-title-icon {
@@ -28,13 +31,13 @@
 .process-title-text {
   position: absolute;
   left: 0;
-  top: 80px;
+  top: 63px;
   display: grid;
   gap: 0;
   margin: 0;
   color: #000;
   font-family: "X-songti", "Songti SC", "SimSun", serif;
-  font-size: clamp(32px, 2.2vw, 36px);
+  font-size: 36px;
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: 0;
@@ -46,8 +49,8 @@
 
 .process-title-subtitle {
   position: absolute;
-  left: 5px;
-  top: 202px;
+  left: 0;
+  top: 188px;
   margin: 0;
   width: 149px;
   color: #000;
@@ -64,13 +67,13 @@
   top: 0;
   width: 100%;
   height: 100%;
-  padding-left: clamp(190px, 13vw, 260px);
+  padding-left: clamp(156px, 12vw, 246px);
   background: #eaeaea;
 }
 
 .process-auto-strip .auto-scroll-strip__group {
-  gap: clamp(28px, 3.2vw, 62px);
-  padding-right: clamp(28px, 3.2vw, 62px);
+  gap: clamp(20px, 2.2vw, 42px);
+  padding-right: clamp(20px, 2.2vw, 42px);
 }
 
 .process-auto-strip .auto-scroll-strip__item {
@@ -83,44 +86,39 @@
 }
 
 .process-step-card {
-  --process-card-width: clamp(250px, 24vw, 420px);
+  --process-card-width: clamp(176px, 15.5vw, 286px);
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
   flex: 0 0 var(--process-card-width);
   width: var(--process-card-width);
   height: 100%;
+  gap: clamp(14px, 1.15vw, 22px);
+  padding: clamp(74px, 7.2vw, 122px) 0 clamp(56px, 5.5vw, 92px);
   color: #000;
 }
 
 .process-step-card--final {
-  --process-card-width: clamp(330px, 32vw, 580px);
+  --process-card-width: clamp(238px, 21vw, 388px);
 }
 
 .process-step-card__image-frame {
-  position: absolute;
-  left: 50%;
-  display: grid;
-  place-items: center;
-  width: min(var(--process-image-width), calc(var(--process-card-width) - 20px));
-  height: min(var(--process-image-height), 58vh);
-  max-height: calc(100% - 180px);
-  transform: translateX(-50%);
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: min(var(--process-image-width), calc(var(--process-card-width) - 18px));
+  height: min(var(--process-image-height), calc(100% - 88px));
+  max-height: clamp(206px, 24vw, 344px);
   transition: transform 220ms ease, filter 220ms ease;
 }
 
-.process-step-card--high .process-step-card__image-frame {
-  top: clamp(210px, 23vw, 330px);
-}
-
-.process-step-card--low .process-step-card__image-frame {
-  top: clamp(330px, 37vw, 520px);
-}
-
 .process-step-card--final .process-step-card__image-frame {
-  top: clamp(110px, 11vw, 190px);
-  width: min(var(--process-image-width), calc(var(--process-card-width) - 20px));
-  height: min(var(--process-image-height), 72vh);
-  max-height: calc(100% - 130px);
+  width: min(var(--process-image-width), calc(var(--process-card-width) - 18px));
+  height: min(var(--process-image-height), calc(100% - 84px));
+  max-height: clamp(304px, 31vw, 448px);
 }
 
 .process-step-card__image {
@@ -128,47 +126,38 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  object-position: center bottom;
   user-select: none;
   pointer-events: none;
 }
 
 .process-step-card__label {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(86px, 9vw, 160px);
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 13px;
-  min-width: min(100%, 185px);
-  height: 65px;
-  padding: 0 24px 0 18px;
+  justify-content: center;
+  gap: clamp(8px, 0.8vw, 12px);
+  min-width: min(100%, 138px);
+  height: clamp(42px, 3.2vw, 52px);
+  padding: 0 clamp(15px, 1.25vw, 22px) 0 clamp(12px, 1vw, 18px);
   border-radius: 999px;
   background: #fffea3;
   color: #000;
   white-space: nowrap;
-  transform: translateX(-50%);
   transition: transform 220ms ease, filter 220ms ease;
-}
-
-.process-step-card--high .process-step-card__label {
-  bottom: clamp(180px, 19vw, 280px);
-}
-
-.process-step-card--final .process-step-card__label {
-  bottom: clamp(42px, 5vw, 92px);
 }
 
 .process-step-card__number {
   display: grid;
   place-items: center;
-  flex: 0 0 34px;
-  width: 34px;
-  height: 34px;
+  flex: 0 0 clamp(24px, 1.9vw, 31px);
+  width: clamp(24px, 1.9vw, 31px);
+  height: clamp(24px, 1.9vw, 31px);
   border-radius: 50%;
   background: #eaeaea;
   color: #000;
   font-family: "Source Han Serif CN", "Songti SC", "SimSun", serif;
-  font-size: 20px;
+  font-size: clamp(13px, 1vw, 17px);
   font-weight: 400;
   line-height: 1;
 }
@@ -177,54 +166,53 @@
   flex: 0 0 auto;
   color: #000;
   font-family: "Source Han Serif CN", "Songti SC", "SimSun", serif;
-  font-size: clamp(28px, 2.1vw, 36px);
+  font-size: clamp(18px, 1.55vw, 26px);
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0;
 }
 
 .process-auto-strip .auto-scroll-strip__item:hover .process-step-card__image-frame {
-  transform: translateX(-50%) translateY(-6px) scale(1.015);
+  transform: translateY(-4px) scale(1.015);
   filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.08));
 }
 
 .process-auto-strip .auto-scroll-strip__item:hover .process-step-card__label {
-  transform: translateX(-50%) translateY(-2px);
+  transform: translateY(-2px);
   filter: brightness(0.99);
 }
 
 .process-complete-card {
   position: relative;
-  display: block;
-  flex: 0 0 clamp(220px, 18vw, 280px);
-  width: clamp(220px, 18vw, 280px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(12px, 1vw, 18px);
+  flex: 0 0 clamp(170px, 14vw, 236px);
+  width: clamp(170px, 14vw, 236px);
   height: 100%;
+  padding-bottom: clamp(58px, 5.6vw, 94px);
 }
 
 .process-complete-card__shape {
-  position: absolute;
-  left: 50%;
-  top: clamp(340px, 34vw, 500px);
+  order: 2;
   display: block;
-  width: clamp(180px, 15vw, 256px);
+  width: clamp(132px, 11vw, 196px);
   height: auto;
   object-fit: contain;
-  transform: translateX(-50%);
 }
 
 .process-complete-card__text {
-  position: absolute;
-  left: 50%;
-  top: clamp(430px, 42vw, 610px);
+  order: 1;
   margin: 0;
   color: #000;
   font-family: "Source Han Serif CN", "Songti SC", "SimSun", serif;
-  font-size: clamp(30px, 2.2vw, 36px);
+  font-size: clamp(22px, 1.8vw, 30px);
   font-weight: 500;
   line-height: 1.5;
   letter-spacing: 0;
   white-space: nowrap;
-  transform: translateX(-50%);
 }
 
 .step-info-popover-layer {
@@ -283,11 +271,11 @@
 
 @media (max-width: 760px) {
   .process-intro-section {
-    height: 700px;
+    height: 560px;
   }
 
   .process-auto-strip.auto-scroll-strip {
-    padding-left: 126px;
+    padding-left: 120px;
   }
 
   .process-title-block {

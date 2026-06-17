@@ -251,13 +251,14 @@ function findProcessStep(item) {
 function ProcessStepCard({ step }) {
   const [isHovered, setIsHovered] = useState(false);
   const imageSrc = isHovered && step.gif ? step.gif : step.src;
+  const imageScale = step.placement === "final" ? 0.5 : 0.58;
 
   return (
     <article
       className={`process-step-card process-step-card--${step.placement}`}
       style={{
-        "--process-image-width": `${step.image.width}px`,
-        "--process-image-height": `${step.image.height}px`
+        "--process-image-width": `${Math.round(step.image.width * imageScale)}px`,
+        "--process-image-height": `${Math.round(step.image.height * imageScale)}px`
       }}
       aria-label={`${step.number} ${step.title}`}
       onPointerEnter={() => setIsHovered(true)}

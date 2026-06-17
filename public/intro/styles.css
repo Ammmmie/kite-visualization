@@ -66,11 +66,6 @@ body {
   background: none;
 }
 
-.sea-cloud {
-  z-index: 3;
-  background-image: url("./assert/sea-cloud.png");
-}
-
 .sky-bg {
   z-index: 4;
   background-image: url("./assert/sky_bg.png");

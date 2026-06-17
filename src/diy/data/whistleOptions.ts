@@ -1,4 +1,10 @@
-import type { EdgeKey, WhistleLayoutMode, WhistleType } from "../types/kite";
+import type {
+  EdgeKey,
+  WhistleFillDensity,
+  WhistleLayoutMode,
+  WhistleSize,
+  WhistleType,
+} from "../types/kite";
 
 export interface WhistleLayoutOption {
   id: WhistleLayoutMode;
@@ -19,16 +25,60 @@ export interface WhistleTypeOption {
   iconSrc: string;
 }
 
+export interface WhistleFillDensityOption {
+  id: WhistleFillDensity;
+  label: string;
+}
+
+export interface WhistleSizeOption {
+  id: WhistleSize;
+  label: string;
+  description: string;
+}
+
 export const whistleLayoutOptions: WhistleLayoutOption[] = [
   {
     id: "horizontal-staggered",
-    label: "横向交错排列",
-    description: "哨口以多行形式分布在板鹞内部，适合表现内部合鸣",
+    label: "覆盖式",
+    description: "按传统规律直接叠加完整哨口图层",
   },
   {
     id: "edge",
-    label: "边缘排列",
-    description: "哨口沿选中边缘分布，适合表现边缘鸣响",
+    label: "边缘式",
+    description: "后续按主要横轴、竖轴选择哨口组",
+  },
+];
+
+export const whistleFillDensityOptions: WhistleFillDensityOption[] = [
+  {
+    id: "low",
+    label: "低",
+  },
+  {
+    id: "mid",
+    label: "中",
+  },
+  {
+    id: "high",
+    label: "高",
+  },
+];
+
+export const whistleSizeOptions: WhistleSizeOption[] = [
+  {
+    id: "small",
+    label: "小哨",
+    description: "密集的高音小哨",
+  },
+  {
+    id: "medium",
+    label: "中哨",
+    description: "中等尺寸哨口",
+  },
+  {
+    id: "large",
+    label: "大哨",
+    description: "底部大哨，固定排列",
   },
 ];
 

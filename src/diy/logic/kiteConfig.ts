@@ -1,4 +1,11 @@
-import type { KiteDIYConfig, KiteShape, SurfacePatternId } from "../types/kite";
+import type {
+  KiteDIYConfig,
+  KiteShape,
+  SurfacePatternId,
+  WhistleEdgeAxisGroupId,
+  WhistleFillDensity,
+  WhistleSize,
+} from "../types/kite";
 
 export const STORAGE_KEY = "banyao-kite-diy-config";
 
@@ -18,6 +25,9 @@ export const defaultKiteDIYConfig: KiteDIYConfig = {
   surfaceBaseColor: "#BFE6E6",
 
   whistleLayoutMode: "horizontal-staggered",
+  whistleFillDensity: "mid",
+  selectedWhistleSizes: ["small", "medium", "large"],
+  selectedWhistleAxisGroupIds: [],
   whistleDensity: 0.5,
   selectedEdges: ["bottom"],
   whistleTypes: ["low", "mid", "high"],
@@ -31,6 +41,8 @@ export function createDefaultKiteDIYConfig(): KiteDIYConfig {
   return {
     ...defaultKiteDIYConfig,
     selectedEdges: [...defaultKiteDIYConfig.selectedEdges],
+    selectedWhistleAxisGroupIds: [...defaultKiteDIYConfig.selectedWhistleAxisGroupIds],
+    selectedWhistleSizes: [...defaultKiteDIYConfig.selectedWhistleSizes],
     whistleTypes: [...defaultKiteDIYConfig.whistleTypes],
     generatedWhistles: [...defaultKiteDIYConfig.generatedWhistles],
   };
@@ -87,6 +99,11 @@ function normalizeKiteConfig(config: Partial<KiteDIYConfig>): KiteDIYConfig {
     kiteShape: normalizeKiteShape(config.kiteShape),
     centerPatternId: normalizePatternId(config.centerPatternId),
     cornerPatternId: normalizePatternId(config.cornerPatternId),
+    whistleFillDensity: normalizeWhistleFillDensity(config.whistleFillDensity),
+    selectedWhistleAxisGroupIds: normalizeWhistleAxisGroupIds(
+      config.selectedWhistleAxisGroupIds,
+    ),
+    selectedWhistleSizes: normalizeWhistleSizes(config.selectedWhistleSizes),
     selectedEdges: Array.isArray(config.selectedEdges) ? config.selectedEdges : defaultConfig.selectedEdges,
     whistleTypes: Array.isArray(config.whistleTypes) ? config.whistleTypes : defaultConfig.whistleTypes,
     generatedWhistles: Array.isArray(config.generatedWhistles) ? config.generatedWhistles : defaultConfig.generatedWhistles,
@@ -103,6 +120,14 @@ const kiteShapes = new Set<KiteShape>([
 ]);
 
 const surfacePatternIds = new Set<SurfacePatternId>(["a", "b", "c", "d", "e", "f"]);
+const whistleAxisGroupIds = new Set<WhistleEdgeAxisGroupId>([
+  "choose-a",
+  "choose-b",
+  "choose-c",
+  "choose-d",
+]);
+const whistleFillDensities = new Set<WhistleFillDensity>(["low", "mid", "high"]);
+const whistleSizes = new Set<WhistleSize>(["small", "medium", "large"]);
 
 function normalizeKiteShape(kiteShape: KiteDIYConfig["kiteShape"] | undefined): KiteShape {
   if ((kiteShape as string | undefined) === "cicada") {
@@ -114,4 +139,30 @@ function normalizeKiteShape(kiteShape: KiteDIYConfig["kiteShape"] | undefined): 
 
 function normalizePatternId(patternId: SurfacePatternId | undefined): SurfacePatternId {
   return patternId && surfacePatternIds.has(patternId) ? patternId : "a";
+}
+
+function normalizeWhistleFillDensity(
+  whistleFillDensity: WhistleFillDensity | undefined,
+): WhistleFillDensity {
+  return whistleFillDensity && whistleFillDensities.has(whistleFillDensity)
+    ? whistleFillDensity
+    : defaultKiteDIYConfig.whistleFillDensity;
+}
+
+function normalizeWhistleSizes(selectedWhistleSizes: WhistleSize[] | undefined): WhistleSize[] {
+  const normalizedSizes = Array.isArray(selectedWhistleSizes)
+    ? selectedWhistleSizes.filter((size) => whistleSizes.has(size))
+    : [];
+
+  return normalizedSizes.length > 0
+    ? normalizedSizes
+    : [...defaultKiteDIYConfig.selectedWhistleSizes];
+}
+
+function normalizeWhistleAxisGroupIds(
+  selectedWhistleAxisGroupIds: WhistleEdgeAxisGroupId[] | undefined,
+): WhistleEdgeAxisGroupId[] {
+  return Array.isArray(selectedWhistleAxisGroupIds)
+    ? selectedWhistleAxisGroupIds.filter((axisGroupId) => whistleAxisGroupIds.has(axisGroupId))
+    : [...defaultKiteDIYConfig.selectedWhistleAxisGroupIds];
 }

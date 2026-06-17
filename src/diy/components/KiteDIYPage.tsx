@@ -1,13 +1,15 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { createDefaultKiteDIYConfig } from "../logic/kiteConfig";
-import { generateWhistles } from "../logic/whistleLayout";
 import type {
   EdgeKey,
   KiteDIYConfig,
   KiteShape,
   PanelKey,
   SurfacePatternId,
+  WhistleEdgeAxisGroupId,
+  WhistleFillDensity,
   WhistleLayoutMode,
+  WhistleSize,
 } from "../types/kite";
 import { FramePanel } from "./panels/FramePanel";
 import { SurfacePanel } from "./panels/SurfacePanel";
@@ -40,15 +42,8 @@ export function KiteDIYPage({
   const [cornerPatternSelected, setCornerPatternSelected] = useState(false);
   const [centerColorCustomized, setCenterColorCustomized] = useState(false);
   const [cornerColorCustomized, setCornerColorCustomized] = useState(false);
-
-  const generatedWhistles = useMemo(() => generateWhistles(config), [config]);
-  const previewConfig = useMemo(
-    () => ({
-      ...config,
-      generatedWhistles,
-    }),
-    [config, generatedWhistles],
-  );
+  const [hoveredWhistleAxisGroupId, setHoveredWhistleAxisGroupId] =
+    useState<WhistleEdgeAxisGroupId | null>(null);
 
   function setActivePanel(activePanel: PanelKey) {
     if (activePanel === "surface") {
@@ -125,13 +120,46 @@ export function KiteDIYPage({
     }));
   }
 
-  function handleWhistleDensityChange(whistleDensity: number) {
+  function handleWhistleFillDensityChange(whistleFillDensity: WhistleFillDensity) {
     setPreviewEnabled(true);
     setWhistlesEnabled(true);
     updateConfig((currentConfig) => ({
       ...currentConfig,
-      whistleDensity,
+      whistleFillDensity,
     }));
+  }
+
+  function handleWhistleSizeToggle(whistleSize: WhistleSize) {
+    setPreviewEnabled(true);
+    setWhistlesEnabled(true);
+    updateConfig((currentConfig) => {
+      const selectedWhistleSizes = currentConfig.selectedWhistleSizes.includes(whistleSize)
+        ? currentConfig.selectedWhistleSizes.filter((selectedSize) => selectedSize !== whistleSize)
+        : [...currentConfig.selectedWhistleSizes, whistleSize];
+
+      return {
+        ...currentConfig,
+        selectedWhistleSizes,
+      };
+    });
+  }
+
+  function handleWhistleAxisGroupToggle(axisGroupId: WhistleEdgeAxisGroupId) {
+    setPreviewEnabled(true);
+    setWhistlesEnabled(true);
+    updateConfig((currentConfig) => {
+      const selectedWhistleAxisGroupIds =
+        currentConfig.selectedWhistleAxisGroupIds.includes(axisGroupId)
+          ? currentConfig.selectedWhistleAxisGroupIds.filter(
+              (selectedAxisGroupId) => selectedAxisGroupId !== axisGroupId,
+            )
+          : [...currentConfig.selectedWhistleAxisGroupIds, axisGroupId];
+
+      return {
+        ...currentConfig,
+        selectedWhistleAxisGroupIds,
+      };
+    });
   }
 
   function handleEdgeToggle(edge: EdgeKey) {
@@ -155,9 +183,12 @@ export function KiteDIYPage({
         <h1 className="visually-hidden">{"\u5357\u901a\u677f\u9e5e\u98ce\u7b5d DIY Demo"}</h1>
 
         <KitePreview
-          config={previewConfig}
+          config={config}
           centerPatternSelected={centerPatternSelected}
           cornerPatternSelected={cornerPatternSelected}
+          hoveredWhistleAxisGroupId={hoveredWhistleAxisGroupId}
+          onWhistleAxisGroupHover={setHoveredWhistleAxisGroupId}
+          onWhistleAxisGroupToggle={handleWhistleAxisGroupToggle}
           previewEnabled={previewEnabled}
           surfaceEnabled={surfaceEnabled}
           whistlesEnabled={whistlesEnabled}
@@ -199,10 +230,11 @@ export function KiteDIYPage({
             onToggle={() => setActivePanel("whistle")}
           >
             <WhistlePanel
-              config={previewConfig}
-              onDensityChange={handleWhistleDensityChange}
+              config={config}
+              onDensityChange={handleWhistleFillDensityChange}
               onEdgeToggle={handleEdgeToggle}
               onLayoutChange={handleWhistleLayoutChange}
+              onWhistleSizeToggle={handleWhistleSizeToggle}
             />
           </AccordionSection>
         </aside>

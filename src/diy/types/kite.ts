@@ -20,6 +20,12 @@ export type EdgeKey = "top" | "right" | "bottom" | "left";
 
 export type WhistleType = "low" | "mid" | "high";
 
+export type WhistleFillDensity = "low" | "mid" | "high";
+
+export type WhistleSize = "small" | "medium" | "large";
+
+export type WhistleEdgeAxisGroupId = "choose-a" | "choose-b" | "choose-c" | "choose-d";
+
 export interface WhistleInstance {
   id: string;
   x: number;
@@ -46,6 +52,9 @@ export interface KiteDIYConfig {
   surfaceBaseColor: string;
 
   whistleLayoutMode: WhistleLayoutMode;
+  whistleFillDensity: WhistleFillDensity;
+  selectedWhistleSizes: WhistleSize[];
+  selectedWhistleAxisGroupIds: WhistleEdgeAxisGroupId[];
   whistleDensity: number;
   selectedEdges: EdgeKey[];
   whistleTypes: WhistleType[];

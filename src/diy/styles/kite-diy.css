@@ -132,6 +132,71 @@ button:focus-visible {
   position: absolute;
   z-index: 5;
   inset: 0;
+  pointer-events: none;
+}
+
+.whistle-fill-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.whistle-edge-layer {
+  z-index: 5;
+}
+
+.whistle-edge-hover-layer {
+  opacity: 0.35;
+}
+
+.whistle-edge-selected-layer {
+  opacity: 1;
+}
+
+.whistle-edge-hit-layer {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+}
+
+.whistle-edge-hit-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+.whistle-edge-hit-group {
+  cursor: pointer;
+  outline: none;
+  pointer-events: all;
+}
+
+.whistle-edge-hit-shape {
+  fill: transparent;
+  pointer-events: all;
+  stroke: transparent;
+  stroke-width: 1;
+}
+
+.whistle-edge-hit-svg-debug .whistle-edge-hit-shape {
+  transition:
+    fill 160ms ease,
+    stroke 160ms ease;
+}
+
+.whistle-edge-hit-svg-debug .whistle-edge-hit-group-hovered .whistle-edge-hit-shape {
+  fill: rgba(146, 219, 255, 0.3);
+  stroke: rgba(212, 238, 255, 0.86);
+}
+
+.whistle-edge-hit-svg-debug .whistle-edge-hit-group-selected .whistle-edge-hit-shape {
+  fill: rgba(255, 255, 255, 0.18);
+  stroke: rgba(255, 255, 255, 0.94);
 }
 
 .kite-surface-pattern-layer {
@@ -637,6 +702,70 @@ button:focus-visible {
   color: rgba(255, 255, 255, 0.86);
   font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: clamp(8px, 1.25vh, 12px);
+}
+
+.whistle-control-group {
+  display: grid;
+  gap: 9px;
+  align-content: start;
+}
+
+.whistle-control-label {
+  color: rgba(255, 255, 255, 0.88);
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(10px, 1.5vh, 15px);
+  line-height: 1;
+}
+
+.whistle-segmented-row,
+.whistle-size-row {
+  display: grid;
+  gap: 8px;
+}
+
+.whistle-segmented-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.whistle-size-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.whistle-choice-button {
+  min-width: 0;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.08);
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(10px, 1.45vh, 14px);
+  line-height: 1;
+}
+
+.whistle-choice-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.whistle-choice-button-selected {
+  border-color: #d4eeff;
+  color: #ffffff;
+  background: rgba(134, 207, 255, 0.18);
+  box-shadow: 0 0 8px 0.4px rgba(134, 207, 255, 0.78);
+}
+
+.whistle-choice-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.whistle-panel-note {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(9px, 1.3vh, 13px);
+  line-height: 1.5;
 }
 
 .density-readout input[type="range"] {

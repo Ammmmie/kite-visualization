@@ -342,15 +342,15 @@ canvas{position:absolute;left:0;top:0;width:1440px;height:900px;pointer-events:n
 
 <div id="start-screen">
   <div id="start-inner">
-    <div id="start-deco">✦ Sound Interaction ✦</div>
-    <h1>风筝声音交互</h1>
+    <div id="start-deco">· S O U N D  I N T E R A C T I O N ·</div>
+    <h1>乘风而起</h1>
     <div id="start-divider"></div>
     <p>
-      需要摄像头与麦克风权限<br>
+      逆风牵线 · 扶摇直上<br>
       <span class="hand-l">左手</span> 控制风速、音高与哨声频率<br>
       <span class="hand-r">右手</span> 控制湿度、空间位置与和声
     </p>
-    <button id="start-btn">开始互动</button>
+    <button id="start-btn">↑</button>
   </div>
 </div>
 
@@ -835,48 +835,47 @@ function setStatus(msg,hide){
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#9ec8e0',
-    backdropFilter: 'blur(22px)',
-    WebkitBackdropFilter: 'blur(22px)',
+    backgroundColor: '#0F1822',
     fontFamily: 'inherit',
   });
 
   overlay.innerHTML = `
     <div style="
       position:absolute;inset:0;
-      background:linear-gradient(175deg,rgba(215,235,248,0.65) 0%,rgba(148,196,226,0.50) 50%,rgba(165,210,232,0.55) 100%);
+      background:#0F1822;
       pointer-events:none;
     "></div>
-    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;">
-      <div style="font-size:11px;letter-spacing:5px;color:rgba(255,255,255,0.55);margin-bottom:22px;text-transform:uppercase;">
-        ✦ &nbsp;S O U N D &nbsp; I N T E R A C T I O N&nbsp; ✦
+    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;color:#FFFEC5;">
+      <div style="font-size:11px;letter-spacing:5px;color:#FFFEC5;margin-bottom:24px;text-transform:uppercase;">
+        · S O U N D  I N T E R A C T I O N ·
       </div>
-      <h1 style="color:#fff;font-size:30px;letter-spacing:8px;margin:0 0 6px;font-weight:300;text-shadow:0 2px 16px rgba(80,130,180,0.25);">
-        风筝声音交互
+      <h1 style="color:#FFFEC5;font-size:38px;letter-spacing:10px;margin:0 0 22px;font-weight:300;font-family:'Songti SC','STSong','SimSun',serif;">
+        乘风而起
       </h1>
-      <div style="width:36px;height:1px;background:rgba(255,255,255,0.5);margin:18px auto 22px;"></div>
-      <p style="color:rgba(255,255,255,0.78);font-size:13px;line-height:2.3;margin:0 0 42px;letter-spacing:0.3px;">
-        需要摄像头与麦克风权限<br>
+      <p style="color:#FFFEC5;font-size:13px;line-height:2.45;margin:0 0 42px;letter-spacing:1px;">
+        逆风牵线 · 扶摇直上<br>
         <span style="color:rgba(255,230,100,0.95);font-weight:500;">左手</span> 控制风速、音高与哨声频率<br>
         <span style="color:rgba(160,235,255,0.95);font-weight:500;">右手</span> 控制湿度、空间位置与和声
       </p>
       <button id="real-start-btn" style="
-        background:rgba(255,255,255,0.22);
-        border:1px solid rgba(255,255,255,0.88);
-        color:#fff;font-size:15px;padding:14px 64px;
-        border-radius:40px;cursor:pointer;letter-spacing:4px;
+        width:64px;height:64px;
+        display:inline-flex;align-items:center;justify-content:center;
+        background:rgba(255,254,197,0.02);
+        border:1px solid rgba(255,254,197,0.62);
+        color:#FFFEC5;font-size:27px;padding:0;
+        border-radius:50%;cursor:pointer;letter-spacing:0;
         font-family:inherit;
-        box-shadow:0 2px 24px rgba(80,140,200,0.12);
+        line-height:1;
         transition:all 0.28s;
-      ">开始互动</button>
+      " aria-label="开始互动">↑</button>
     </div>
   `;
   document.body.appendChild(overlay);
 
   // hover effect
   const btn = overlay.querySelector('#real-start-btn');
-  btn.addEventListener('mouseover', ()=>{ btn.style.background='rgba(255,255,255,0.36)'; btn.style.transform='translateY(-2px)'; });
-  btn.addEventListener('mouseout',  ()=>{ btn.style.background='rgba(255,255,255,0.22)'; btn.style.transform=''; });
+  btn.addEventListener('mouseover', ()=>{ btn.style.borderColor='rgba(255,254,197,0.92)'; btn.style.color='#ffffdf'; });
+  btn.addEventListener('mouseout',  ()=>{ btn.style.borderColor='rgba(255,254,197,0.62)'; btn.style.color='#FFFEC5'; });
 
   window._removeStartOverlay = function(){
     overlay.style.transition='opacity 0.6s';

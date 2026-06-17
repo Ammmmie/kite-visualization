@@ -303,8 +303,13 @@ export default function SkeletonPatternPage() {
       )}
       {({ goTo }) => (
         <div className="flow-pane flow-pane--sound">
-          <button className="flow-pane__back-chip" onClick={() => goTo(1)} type="button">
-            {"\u8fd4\u56de\u5236\u4f5c"}
+          <button
+            aria-label="\u8fd4\u56de\u5236\u4f5c"
+            className="flow-pane__back-chip"
+            onClick={() => goTo(1)}
+            type="button"
+          >
+            {"\u2039"}
           </button>
           <SoundInteractionSection />
         </div>

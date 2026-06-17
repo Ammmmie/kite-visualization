@@ -3,7 +3,7 @@ import type { KiteShape } from "../../types/kite";
 
 interface FramePanelProps {
   onShapeChange: (shape: KiteShape) => void;
-  selectedShape: KiteShape;
+  selectedShape: KiteShape | null;
 }
 
 export function FramePanel({ onShapeChange, selectedShape }: FramePanelProps) {

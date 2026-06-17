@@ -1,241 +1,403 @@
-import type { CSSProperties } from "react";
+import { useState } from "react";
 import {
   getBaseUnitType,
-  getKiteFrameAsset,
   getSurfaceIconAsset,
-  getSurfaceInitialCornerAsset,
-  getSurfaceLayoutAsset,
   surfacePatternOptions,
 } from "../../data/surfaceAssets";
-import type { KiteDIYConfig, SurfaceArea, SurfacePatternId } from "../../types/kite";
+import type {
+  BaseUnitType,
+  KiteDIYConfig,
+  SurfaceArea,
+  SurfacePanelKey,
+  SurfacePatternId,
+} from "../../types/kite";
 import type { SurfaceColorField } from "../KiteDIYPage";
-import { SurfaceBaseLayer } from "../preview/SurfaceBaseLayer";
+
+type SurfaceColorControlId =
+  | "center-fill"
+  | "corner-fill"
+  | "frame-primary";
+
+const colorPresets = [
+  "#38BDFF",
+  "#F98D79",
+  "#FFFEA3",
+  "#D9FFFF",
+  "#FFFFCC",
+  "#F7F1D4",
+  "#B4B4B4",
+  "#111111",
+];
 
 interface SurfacePanelProps {
+  activeSurfacePanel: SurfacePanelKey;
   centerPatternSelected: boolean;
-  centerPlaceholderColor: string;
   config: KiteDIYConfig;
   cornerPatternSelected: boolean;
-  cornerPlaceholderColor: string;
   onCenterPatternChange: (patternId: SurfacePatternId) => void;
   onColorChange: (field: SurfaceColorField, value: string) => void;
   onCornerPatternChange: (patternId: SurfacePatternId) => void;
+  onSurfacePanelChange: (panel: SurfacePanelKey) => void;
 }
 
 export function SurfacePanel({
+  activeSurfacePanel,
   centerPatternSelected,
-  centerPlaceholderColor,
   config,
   cornerPatternSelected,
-  cornerPlaceholderColor,
   onCenterPatternChange,
   onColorChange,
   onCornerPatternChange,
+  onSurfacePanelChange,
 }: SurfacePanelProps) {
+  const [expandedColorControl, setExpandedColorControl] =
+    useState<SurfaceColorControlId | null>(null);
   const baseUnitType = getBaseUnitType(config.kiteShape);
 
+  function handlePanelChange(panel: SurfacePanelKey) {
+    setExpandedColorControl(null);
+    onSurfacePanelChange(panel);
+  }
+
+  function handleColorControlToggle(controlId: SurfaceColorControlId) {
+    setExpandedColorControl((currentControlId) =>
+      currentControlId === controlId ? null : controlId,
+    );
+  }
+
+  if (activeSurfacePanel === "intro") {
+    return <SurfaceIntroPanel onSurfacePanelChange={handlePanelChange} />;
+  }
+
+  if (activeSurfacePanel === "frameColor") {
+    return (
+      <FrameColorPanel
+        baseUnitType={baseUnitType}
+        config={config}
+        expandedColorControl={expandedColorControl}
+        onColorChange={onColorChange}
+        onColorControlToggle={handleColorControlToggle}
+      />
+    );
+  }
+
   return (
-    <div className="surface-panel">
-      <SurfacePart
-        area="center"
-        baseUnitType={baseUnitType}
-        color={config.centerPatternPrimaryColor}
-        colorField="centerPatternPrimaryColor"
-        label="星中"
-        onColorChange={onColorChange}
-        onPatternChange={onCenterPatternChange}
-        patternId={config.centerPatternId}
-        patternSelected={centerPatternSelected}
-        placeholderColor={centerPlaceholderColor}
-      />
-      <SurfacePart
-        area="corner"
-        baseUnitType={baseUnitType}
-        color={config.cornerPatternPrimaryColor}
-        colorField="cornerPatternPrimaryColor"
-        label="星角"
-        onColorChange={onColorChange}
-        onPatternChange={onCornerPatternChange}
-        patternId={config.cornerPatternId}
-        patternSelected={cornerPatternSelected}
-        placeholderColor={cornerPlaceholderColor}
-      />
+    <SurfacePatternEditor
+      area={activeSurfacePanel === "center" ? "center" : "corner"}
+      baseUnitType={baseUnitType}
+      config={config}
+      expandedColorControl={expandedColorControl}
+      onColorChange={onColorChange}
+      onColorControlToggle={handleColorControlToggle}
+      onPatternChange={
+        activeSurfacePanel === "center" ? onCenterPatternChange : onCornerPatternChange
+      }
+      patternSelected={
+        activeSurfacePanel === "center" ? centerPatternSelected : cornerPatternSelected
+      }
+    />
+  );
+}
+
+interface SurfaceIntroPanelProps {
+  onSurfacePanelChange: (panel: SurfacePanelKey) => void;
+}
+
+function SurfaceIntroPanel({ onSurfacePanelChange }: SurfaceIntroPanelProps) {
+  return (
+    <div className="surface-intro-panel">
+      <div className="surface-intro-copy">
+        <p>鹞面纹样取意于古代鸟纹与羽饰，仿佛神鸟展开双翼，听见天候的讯息。</p>
+        <p>传统板鹞常用红、黑、青、紫等色，并以金色点染；鹞面则多采用牛皮纸、高丽纸、棉布或丝绸，在轻薄与坚韧之间承接风力。</p>
+        <p>东风起时，纹样随板鹞升入高空，鹞鸣九皋，其声闻于野。</p>
+      </div>
+
+      <p className="surface-intro-copy-en">
+        The wind bears a message, and the whistle foretells the rain. Inspired by ancient
+        bird and feather motifs, the kite surface evokes a mythical bird listening to
+        changes in the weather. Traditional Bianyao kites often use red, black, cyan, and
+        purple, accented with touches of gold.
+      </p>
+
+      <div className="surface-intro-actions" aria-label="鹞面设置入口">
+        <SurfaceIntroAction
+          cnLabel="骨架颜色"
+          enLabel="Frame Color"
+          onClick={() => onSurfacePanelChange("frameColor")}
+        />
+        <SurfaceIntroAction
+          cnLabel="星中"
+          enLabel="Star Center"
+          onClick={() => onSurfacePanelChange("center")}
+        />
+        <SurfaceIntroAction
+          cnLabel="星角"
+          enLabel="Outer Triangles"
+          onClick={() => onSurfacePanelChange("corner")}
+        />
+      </div>
+
+      <p className="surface-panel-hint">点击为风筝选择自己喜欢的纹样和颜色</p>
     </div>
   );
 }
 
-interface SurfacePartProps {
-  area: SurfaceArea;
-  baseUnitType: "hexagon" | "eight-star";
-  color: string;
-  colorField: SurfaceColorField;
-  label: string;
-  onColorChange: (field: SurfaceColorField, value: string) => void;
-  onPatternChange: (patternId: SurfacePatternId) => void;
-  patternId: SurfacePatternId;
-  patternSelected: boolean;
-  placeholderColor: string;
+interface SurfaceIntroActionProps {
+  cnLabel: string;
+  enLabel: string;
+  onClick: () => void;
 }
 
-function SurfacePart({
-  area,
-  baseUnitType,
-  color,
-  colorField,
-  label,
-  onColorChange,
-  onPatternChange,
-  patternId,
-  patternSelected,
-  placeholderColor,
-}: SurfacePartProps) {
-  const selectedIconAsset = getSurfaceIconAsset(area, patternId, baseUnitType);
-  const colorPresentation = getColorPresentation(color);
-
+function SurfaceIntroAction({ cnLabel, enLabel, onClick }: SurfaceIntroActionProps) {
   return (
-    <section className="surface-part">
-      <div className="surface-part-identity">
-        <h3>{label}</h3>
-        <SurfaceUnitPreview
-          area={area}
-          baseUnitType={baseUnitType}
-          color={color}
-          patternAsset={selectedIconAsset}
-          patternId={patternId}
-          patternSelected={patternSelected}
-          placeholderColor={placeholderColor}
-        />
-      </div>
-      <div className="surface-part-controls">
-        <label className="surface-color-control">
-          <span className="surface-control-label">颜色</span>
-          <span className="surface-color-value">
-            <span className="surface-color-swatch" style={{ backgroundColor: color }} />
-            <output className="surface-color-code">{colorPresentation.hex}</output>
-            <span className="surface-color-opacity">{colorPresentation.opacity}</span>
-            <input
-              aria-label={`${label}颜色`}
-              onChange={(event) => onColorChange(colorField, event.target.value)}
-              type="color"
-              value={color}
-            />
-          </span>
-        </label>
-
-        <div className="surface-pattern-control">
-          <span className="surface-control-label">纹样</span>
-          <div className="surface-pattern-grid" aria-label={`${label}纹样`}>
-            {surfacePatternOptions.map((option) => {
-              const iconAsset = getSurfaceIconAsset(area, option.id, baseUnitType);
-
-              return (
-                <button
-                  aria-label={`${label}${option.label}`}
-                  aria-pressed={patternSelected && option.id === patternId}
-                  className={`surface-pattern-option${
-                    patternSelected && option.id === patternId
-                      ? " surface-pattern-option-selected"
-                      : ""
-                  }`}
-                  key={option.id}
-                  onClick={() => onPatternChange(option.id)}
-                  type="button"
-                >
-                  <img alt="" src={iconAsset} />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </section>
+    <button className="surface-intro-action" onClick={onClick} type="button">
+      <span>
+        <strong>{cnLabel}</strong>
+        <small>{enLabel}</small>
+      </span>
+      <i aria-hidden="true">{"\u2192"}</i>
+    </button>
   );
 }
 
-function getColorPresentation(color: string): { hex: string; opacity: string } {
-  const normalizedColor = color.trim();
-  const eightDigitHex = normalizedColor.match(/^#([0-9a-f]{6})([0-9a-f]{2})$/i);
-
-  if (eightDigitHex) {
-    return {
-      hex: eightDigitHex[1].toUpperCase(),
-      opacity: `${Math.round((Number.parseInt(eightDigitHex[2], 16) / 255) * 100)} %`,
-    };
-  }
-
-  const sixDigitHex = normalizedColor.match(/^#([0-9a-f]{6})$/i);
-
-  if (sixDigitHex) {
-    return {
-      hex: sixDigitHex[1].toUpperCase(),
-      opacity: "100 %",
-    };
-  }
-
-  return {
-    hex: normalizedColor.toUpperCase(),
-    opacity: "100 %",
-  };
-}
-
-interface SurfaceUnitPreviewProps {
+interface SurfacePatternEditorProps {
   area: SurfaceArea;
-  baseUnitType: "hexagon" | "eight-star";
-  color: string;
-  patternAsset: string;
-  patternId: SurfacePatternId;
+  baseUnitType: BaseUnitType;
+  config: KiteDIYConfig;
+  expandedColorControl: SurfaceColorControlId | null;
+  onColorChange: (field: SurfaceColorField, value: string) => void;
+  onColorControlToggle: (controlId: SurfaceColorControlId) => void;
+  onPatternChange: (patternId: SurfacePatternId) => void;
   patternSelected: boolean;
-  placeholderColor: string;
 }
 
-function SurfaceUnitPreview({
+function SurfacePatternEditor({
   area,
   baseUnitType,
-  color,
-  patternAsset,
-  patternId,
+  config,
+  expandedColorControl,
+  onColorChange,
+  onColorControlToggle,
+  onPatternChange,
   patternSelected,
-  placeholderColor,
-}: SurfaceUnitPreviewProps) {
-  const baseUnitShape = baseUnitType === "hexagon" ? "hexagon" : "eight-star";
-  const frameAsset = getKiteFrameAsset(baseUnitShape);
-  const previewAsset = patternSelected
-    ? area === "corner"
-      ? getSurfaceLayoutAsset("corner", baseUnitShape, patternId)
-      : patternAsset
-    : area === "corner"
-      ? getSurfaceInitialCornerAsset(baseUnitType)
-      : "";
-  const patternStyle = {
-    ...(previewAsset ? { "--surface-mask": `url("${previewAsset}")` } : {}),
-    backgroundColor: patternSelected ? color : placeholderColor,
-  } as CSSProperties;
+}: SurfacePatternEditorProps) {
+  const isCenter = area === "center";
+  const fillField: SurfaceColorField = isCenter
+    ? "centerPatternPrimaryColor"
+    : "cornerPatternPrimaryColor";
+  const fillColor = isCenter
+    ? config.centerPatternPrimaryColor
+    : config.cornerPatternPrimaryColor;
+  const fillControlId = `${area}-fill` as SurfaceColorControlId;
+  const selectedPatternId = isCenter ? config.centerPatternId : config.cornerPatternId;
+
+  return (
+    <div className={`surface-subpanel surface-subpanel-${area}`}>
+      <SurfaceUnitDiagram
+        area={area}
+        baseUnitType={baseUnitType}
+      />
+
+      <div className="surface-editor-colors surface-editor-colors-single">
+        <ColorControl
+          color={fillColor}
+          controlId={fillControlId}
+          field={fillField}
+          isExpanded={expandedColorControl === fillControlId}
+          label="Fill Area"
+          onColorChange={onColorChange}
+          onToggle={onColorControlToggle}
+        />
+      </div>
+
+      <PatternGrid
+        area={area}
+        baseUnitType={baseUnitType}
+        onPatternChange={onPatternChange}
+        patternSelected={patternSelected}
+        selectedPatternId={selectedPatternId}
+      />
+
+      <p className="surface-panel-hint">将纹样的分布拆解为星中和星角，来为风筝选择自己喜欢的纹样和颜色</p>
+    </div>
+  );
+}
+
+interface FrameColorPanelProps {
+  baseUnitType: BaseUnitType;
+  config: KiteDIYConfig;
+  expandedColorControl: SurfaceColorControlId | null;
+  onColorChange: (field: SurfaceColorField, value: string) => void;
+  onColorControlToggle: (controlId: SurfaceColorControlId) => void;
+}
+
+function FrameColorPanel({
+  baseUnitType,
+  config,
+  expandedColorControl,
+  onColorChange,
+  onColorControlToggle,
+}: FrameColorPanelProps) {
+  return (
+    <div className="surface-subpanel surface-subpanel-frame-color">
+      <SurfaceUnitDiagram
+        area="frameColor"
+        baseUnitType={baseUnitType}
+      />
+
+      <div className="surface-editor-colors surface-editor-colors-single">
+        <ColorControl
+          color={config.framePrimaryColor}
+          controlId="frame-primary"
+          field="framePrimaryColor"
+          isExpanded={expandedColorControl === "frame-primary"}
+          label="Frame Color"
+          onColorChange={onColorChange}
+          onToggle={onColorControlToggle}
+        />
+      </div>
+
+      <p className="surface-panel-hint">来为风筝的骨架选择自己喜欢的颜色</p>
+    </div>
+  );
+}
+
+interface ColorControlProps {
+  color: string;
+  controlId: SurfaceColorControlId;
+  field: SurfaceColorField;
+  isExpanded: boolean;
+  label: string;
+  onColorChange: (field: SurfaceColorField, value: string) => void;
+  onToggle: (controlId: SurfaceColorControlId) => void;
+}
+
+function ColorControl({
+  color,
+  controlId,
+  field,
+  isExpanded,
+  label,
+  onColorChange,
+  onToggle,
+}: ColorControlProps) {
+  return (
+    <div className="surface-color-block">
+      <button
+        aria-expanded={isExpanded}
+        className={`surface-color-button${isExpanded ? " surface-color-button-open" : ""}`}
+        onClick={() => onToggle(controlId)}
+        type="button"
+      >
+        <span className="surface-color-label">{label}</span>
+        <span className="surface-color-button-value">
+          <span className="surface-color-swatch" style={{ backgroundColor: color }} />
+          <span>{color.toUpperCase()}</span>
+        </span>
+      </button>
+
+      {isExpanded ? (
+        <ColorPalette color={color} field={field} onColorChange={onColorChange} />
+      ) : null}
+    </div>
+  );
+}
+
+interface ColorPaletteProps {
+  color: string;
+  field: SurfaceColorField;
+  onColorChange: (field: SurfaceColorField, value: string) => void;
+}
+
+function ColorPalette({ color, field, onColorChange }: ColorPaletteProps) {
+  return (
+    <div className="surface-color-palette">
+      <div className="surface-color-preset-grid">
+        {colorPresets.map((presetColor) => (
+          <button
+            aria-label={`选择颜色 ${presetColor}`}
+            aria-pressed={presetColor.toUpperCase() === color.toUpperCase()}
+            className="surface-color-preset"
+            key={presetColor}
+            onClick={() => onColorChange(field, presetColor)}
+            style={{ backgroundColor: presetColor }}
+            type="button"
+          />
+        ))}
+      </div>
+      <label className="surface-native-color">
+        <span>Custom</span>
+        <input
+          aria-label="自定义颜色"
+          onChange={(event) => onColorChange(field, event.target.value)}
+          type="color"
+          value={color}
+        />
+      </label>
+    </div>
+  );
+}
+
+interface PatternGridProps {
+  area: SurfaceArea;
+  baseUnitType: BaseUnitType;
+  onPatternChange: (patternId: SurfacePatternId) => void;
+  patternSelected: boolean;
+  selectedPatternId: SurfacePatternId;
+}
+
+function PatternGrid({
+  area,
+  baseUnitType,
+  onPatternChange,
+  patternSelected,
+  selectedPatternId,
+}: PatternGridProps) {
+  return (
+    <div className="surface-new-pattern-grid" aria-label={`${area === "center" ? "星中" : "星角"}纹样`}>
+      {surfacePatternOptions.map((option) => {
+        const iconAsset = getSurfaceIconAsset(area, option.id, baseUnitType);
+        const isSelected = patternSelected && option.id === selectedPatternId;
+
+        return (
+          <button
+            aria-label={`${area === "center" ? "星中" : "星角"}${option.label}`}
+            aria-pressed={isSelected}
+            className={`surface-new-pattern-option${
+              isSelected ? " surface-new-pattern-option-selected" : ""
+            }`}
+            key={option.id}
+            onClick={() => onPatternChange(option.id)}
+            type="button"
+          >
+            <img className="surface-new-pattern-image" src={iconAsset} alt="" />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+interface SurfaceUnitDiagramProps {
+  area: SurfaceArea | "frameColor";
+  baseUnitType: BaseUnitType;
+}
+
+function SurfaceUnitDiagram({
+  area,
+  baseUnitType,
+}: SurfaceUnitDiagramProps) {
+  const familyLabel = baseUnitType === "hexagon" ? "六角星" : "八角星";
+  const iconLabel =
+    area === "center" ? "星中" : area === "corner" ? "星角" : "骨架";
+  const iconAsset = `/diy-assets/icons/${familyLabel}-${iconLabel}.svg`;
 
   return (
     <div
-      className={`surface-unit-preview surface-unit-preview-${baseUnitType}${
-        area === "corner" ? " surface-unit-preview-layout" : ""
-      }`}
+      className={`surface-unit-diagram surface-unit-diagram-${baseUnitType} surface-unit-diagram-${area}`}
       aria-hidden="true"
     >
-      <SurfaceBaseLayer className="surface-unit-base-layer" frameAsset={frameAsset} />
-      <img
-        className="surface-unit-frame"
-        src={frameAsset}
-        alt=""
-      />
-      {area === "center" ? (
-        <span
-          className={
-            patternSelected
-              ? "surface-unit-center-pattern"
-              : "surface-unit-center-placeholder"
-          }
-          style={patternStyle}
-        />
-      ) : (
-        <span className="surface-unit-corner-layout" style={patternStyle} />
-      )}
+      <img className="surface-unit-diagram-image" src={iconAsset} alt="" />
     </div>
   );
 }

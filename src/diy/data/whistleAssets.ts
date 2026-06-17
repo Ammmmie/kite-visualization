@@ -19,12 +19,18 @@ const sizeFilePrefix: Record<WhistleSize, string> = {
   medium: "m",
   large: "l",
 };
+const twentyThreeStarWhistleAssetVersion = "?v=20260618-1";
 
 export interface WhistleFillLayer {
   id: string;
   src: string;
   size: WhistleSize;
 }
+
+export const whistleLayoutIconAssets = {
+  coverage: "/diy-assets/icons/覆盖式icon.png",
+  edge: "/diy-assets/icons/自选式icon.png",
+} as const;
 
 const edgeChooseAssets: Partial<Record<KiteShape, Partial<Record<WhistleEdgeAxisGroupId, string>>>> = {
   "eight-star": {
@@ -38,6 +44,14 @@ const edgeChooseAssets: Partial<Record<KiteShape, Partial<Record<WhistleEdgeAxis
     "choose-a": "/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-a.png",
     "choose-b": "/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-b.png",
     "choose-c": "/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-c.png",
+  },
+  "nine-star": {
+    "choose-a": "/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-a.png",
+    "choose-b": "/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-b.png",
+    "choose-c": "/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-c.png",
+    "choose-d": "/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-d.png",
+    "choose-e": "/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-e.png",
+    "choose-f": "/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-f.png",
   },
   "nineteen-star": {
     "choose-a": "/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-a.png",
@@ -58,8 +72,63 @@ const edgeChooseAssets: Partial<Record<KiteShape, Partial<Record<WhistleEdgeAxis
     "choose-e": "/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-e.png",
     "choose-f": "/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-f.png",
     "choose-g": "/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-g.png",
+    "choose-h": "/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-h.png",
+  },
+  "twenty-three-star": {
+    "choose-a": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-a.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-b": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-b.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-c": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-c.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-d": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-d.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-e": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-e.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-f": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-f.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-g": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-g.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-h": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-h.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-i": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-i.png${twentyThreeStarWhistleAssetVersion}`,
   },
 };
+
+const edgeHitAreaIds: Partial<Record<KiteShape, WhistleEdgeAxisGroupId[]>> = {
+  "eight-star": ["choose-a", "choose-b", "choose-c", "choose-d", "choose-e"],
+  hexagon: ["choose-a", "choose-b", "choose-c"],
+  "nine-star": ["choose-a", "choose-b", "choose-c", "choose-d", "choose-e", "choose-f"],
+  "nineteen-star": [
+    "choose-a",
+    "choose-b",
+    "choose-c",
+    "choose-d",
+    "choose-e",
+    "choose-f",
+    "choose-g",
+    "choose-h",
+    "choose-i",
+  ],
+  "seven-star": [
+    "choose-a",
+    "choose-b",
+    "choose-c",
+    "choose-d",
+    "choose-e",
+    "choose-f",
+    "choose-g",
+    "choose-h",
+  ],
+  "twenty-three-star": [
+    "choose-a",
+    "choose-b",
+    "choose-c",
+    "choose-d",
+    "choose-e",
+    "choose-f",
+    "choose-g",
+    "choose-h",
+    "choose-i",
+  ],
+};
+
+export interface WhistleEdgeHitAreaAsset {
+  id: WhistleEdgeAxisGroupId;
+  src: string;
+}
 
 export function getWhistleFillLayers(
   kiteShape: KiteShape,
@@ -102,4 +171,22 @@ export function getWhistleEdgeChooseAsset(
   axisGroupId: WhistleEdgeAxisGroupId,
 ): string | undefined {
   return edgeChooseAssets[kiteShape]?.[axisGroupId];
+}
+
+export function getWhistleEdgeAxisGroupIds(kiteShape: KiteShape): WhistleEdgeAxisGroupId[] {
+  return Object.keys(edgeChooseAssets[kiteShape] ?? {}) as WhistleEdgeAxisGroupId[];
+}
+
+export function getWhistleEdgeHitAreaAssets(kiteShape: KiteShape): WhistleEdgeHitAreaAsset[] {
+  const folderName = kiteShapeFolderName[kiteShape];
+  const hitAreaIds = edgeHitAreaIds[kiteShape] ?? [];
+
+  if (!folderName || hitAreaIds.length === 0) {
+    return [];
+  }
+
+  return hitAreaIds.map((id) => ({
+    id,
+    src: `/diy-assets/whistles/自选边缘式/热区/${folderName}/hit-${id}.svg`,
+  }));
 }

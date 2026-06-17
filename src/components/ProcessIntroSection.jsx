@@ -230,7 +230,7 @@ const processSteps = [
     gif: step16Gif,
     image: { width: 554, height: 797 },
     placement: "final",
-    offsetY: -28,
+    offsetY: 18,
     description: "最后安装鹞尾，用来调整风筝飞行时的重心和姿态，使板鹞升空后更加平稳。"
   }
 ].map((step) => ({
@@ -251,8 +251,8 @@ const processItems = [
 
 function getPopoverPosition(rect) {
   const gap = 22;
-  const cardWidth = Math.min(567, window.innerWidth - 32);
-  const cardHeight = 380;
+  const cardWidth = Math.min(360, window.innerWidth - 32);
+  const cardHeight = 280;
   const showLeft = rect.right + gap + cardWidth > window.innerWidth;
   const left = showLeft ? Math.max(16, rect.left - cardWidth - gap) : Math.min(rect.right + gap, window.innerWidth - cardWidth - 16);
   const top = Math.max(16, Math.min(rect.top + rect.height * 0.2, window.innerHeight - cardHeight - 16));

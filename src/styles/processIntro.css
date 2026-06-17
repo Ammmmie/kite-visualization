@@ -1,8 +1,9 @@
 .process-intro-section {
   --process-scale: min(1, calc(100vw / 1920px));
+  --process-stagger-strength: clamp(0.62, calc(100vw / 1920px), 1);
   position: relative;
   width: 100%;
-  height: clamp(560px, 43vw, 760px);
+  height: clamp(610px, 46vw, 820px);
   overflow: hidden;
   background: #eaeaea;
 }
@@ -96,8 +97,10 @@
   width: var(--process-card-width);
   height: 100%;
   gap: clamp(14px, 1.15vw, 22px);
-  padding: clamp(74px, 7.2vw, 122px) 0 clamp(56px, 5.5vw, 92px);
+  padding: clamp(96px, 8.2vw, 150px) 0 clamp(92px, 7vw, 132px);
   color: #000;
+  transform: translateY(calc(var(--step-offset-y, 0px) * var(--process-stagger-strength)));
+  transition: transform 220ms ease;
 }
 
 .process-step-card--final {
@@ -271,7 +274,8 @@
 
 @media (max-width: 760px) {
   .process-intro-section {
-    height: 560px;
+    --process-stagger-strength: 0.5;
+    height: 600px;
   }
 
   .process-auto-strip.auto-scroll-strip {

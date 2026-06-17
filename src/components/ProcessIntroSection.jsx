@@ -50,6 +50,7 @@ const processSteps = [
     gif: step01Gif,
     image: { width: 356, height: 503 },
     placement: "low",
+    offsetY: 42,
     description: "挑选生长周期三年以上的竹子，比如江南笔竹或本地上乘老竹。"
   },
   {
@@ -61,6 +62,7 @@ const processSteps = [
     gif: step02Gif,
     image: { width: 383, height: 383 },
     placement: "high",
+    offsetY: -64,
     description: "使用劈刀将竹材劈成细薄竹篾，控制宽度和厚薄。"
   },
   {
@@ -72,6 +74,7 @@ const processSteps = [
     gif: step03Gif,
     image: { width: 357, height: 357 },
     placement: "low",
+    offsetY: 54,
     description: "用文火加热竹篾，一边烘烤一边弯折、矫直，使竹篾更容易定型并保持弹性。"
   },
   {
@@ -83,6 +86,7 @@ const processSteps = [
     gif: step04Gif,
     image: { width: 384, height: 288 },
     placement: "high",
+    offsetY: -48,
     description: "毛刷在竹篾表面刷上清漆，起到防潮、防腐和增强耐用性的作用。"
   },
   {
@@ -94,6 +98,7 @@ const processSteps = [
     gif: step05Gif,
     image: { width: 238, height: 298 },
     placement: "low",
+    offsetY: 14,
     description: "将处理好的竹篾按照板鹞的几何比例摆放，搭出基本骨架。"
   },
   {
@@ -105,6 +110,7 @@ const processSteps = [
     gif: step06Gif,
     image: { width: 342, height: 308 },
     placement: "high",
+    offsetY: -72,
     description: "用棉线或细线缠绕骨架交接点，将竹篾固定牢靠。"
   },
   {
@@ -116,6 +122,7 @@ const processSteps = [
     gif: step07Gif,
     image: { width: 256, height: 320 },
     placement: "low",
+    offsetY: 62,
     description: "根据骨架形状安排纹样，在选定的纸布上绘制板鹞图案。富有韧性的纸或布如牛皮纸、高丽纸、棉布、丝绸。"
   },
   {
@@ -127,6 +134,7 @@ const processSteps = [
     gif: step08Gif,
     image: { width: 304, height: 380 },
     placement: "high",
+    offsetY: -58,
     description: "按照骨架轮廓裁剪纸面或绢面，预留边缘包覆空间，使鹞面能够完整贴合骨架。"
   },
   {
@@ -138,6 +146,7 @@ const processSteps = [
     gif: step09Gif,
     image: { width: 376, height: 369 },
     placement: "low",
+    offsetY: 46,
     description: "用毛刷涂胶，将裁好的鹞面覆在骨架上，并压实边缘，使风筝形成完整平面。"
   },
   {
@@ -149,6 +158,7 @@ const processSteps = [
     gif: step10Gif,
     image: { width: 403, height: 403 },
     placement: "high",
+    offsetY: -66,
     description: "将选定的材料锯开，阳光均匀暴晒，定期翻动使材料得到充分干燥，作为哨口的下半部分。毛竹、本竹、芦苇等管状材料称“哨”；白果、蚕茧、桂圆、鸟蛋和葫芦等球状材料称“口”。"
   },
   {
@@ -160,6 +170,7 @@ const processSteps = [
     gif: step11Gif,
     image: { width: 360, height: 269 },
     placement: "low",
+    offsetY: 38,
     description: "用刻刀在哨面中间斜切，凿出长方形的出风口。"
   },
   {
@@ -171,6 +182,7 @@ const processSteps = [
     gif: step12Gif,
     image: { width: 406, height: 304 },
     placement: "high",
+    offsetY: -52,
     description: "哨口和哨帽都刷上清漆防腐后，将两者进行黏合。"
   },
   {
@@ -182,6 +194,7 @@ const processSteps = [
     gif: step13Gif,
     image: { width: 308, height: 385 },
     placement: "low",
+    offsetY: 58,
     description: "使用细竹篾在板鹞骨架上继续搭建固定哨口的小竹架，为后续安装哨口提供支撑位置。"
   },
   {
@@ -193,6 +206,7 @@ const processSteps = [
     gif: step14Gif,
     image: { width: 294, height: 367 },
     placement: "high",
+    offsetY: -44,
     description: "将不同大小的哨口/哨组固定到鹞面指定位置，使多个哨口形成有层次的鸣响效果。"
   },
   {
@@ -204,6 +218,7 @@ const processSteps = [
     gif: step15Gif,
     image: { width: 309, height: 363 },
     placement: "low",
+    offsetY: 50,
     description: "安装、拉伸引线到指定位置，让板鹞在放飞时保持平衡和稳定。"
   },
   {
@@ -215,6 +230,7 @@ const processSteps = [
     gif: step16Gif,
     image: { width: 554, height: 797 },
     placement: "final",
+    offsetY: -28,
     description: "最后安装鹞尾，用来调整风筝飞行时的重心和姿态，使板鹞升空后更加平稳。"
   }
 ].map((step) => ({
@@ -258,7 +274,8 @@ function ProcessStepCard({ step }) {
       className={`process-step-card process-step-card--${step.placement}`}
       style={{
         "--process-image-width": `${Math.round(step.image.width * imageScale)}px`,
-        "--process-image-height": `${Math.round(step.image.height * imageScale)}px`
+        "--process-image-height": `${Math.round(step.image.height * imageScale)}px`,
+        "--step-offset-y": `${step.offsetY || 0}px`
       }}
       aria-label={`${step.number} ${step.title}`}
       onPointerEnter={() => setIsHovered(true)}

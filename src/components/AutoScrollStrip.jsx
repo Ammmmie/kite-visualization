@@ -13,7 +13,8 @@ export default function AutoScrollStrip({
   pauseOnHover = true,
   draggable = true,
   renderItem,
-  className = ""
+  className = "",
+  initialIndex = 0
 }) {
   const stripRef = useRef(null);
   const groupRef = useRef(null);
@@ -31,6 +32,16 @@ export default function AutoScrollStrip({
   const suppressClickRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
 
+  const getInitialOffset = useCallback(() => {
+    const group = groupRef.current;
+    if (!group) {
+      return 0;
+    }
+
+    const initialItem = group.querySelector(`[data-auto-scroll-index="${initialIndex}"]`);
+    return initialItem ? Math.max(0, initialItem.offsetLeft - group.offsetLeft) : 0;
+  }, [initialIndex]);
+
   const centerScroll = useCallback((preservePhase = true) => {
     const strip = stripRef.current;
     const groupWidth = groupWidthRef.current;
@@ -38,10 +49,10 @@ export default function AutoScrollStrip({
       return;
     }
 
-    const phase = preservePhase ? ((strip.scrollLeft % groupWidth) + groupWidth) % groupWidth : 0;
+    const phase = preservePhase ? ((strip.scrollLeft % groupWidth) + groupWidth) % groupWidth : getInitialOffset();
     strip.scrollLeft = groupWidth * CENTER_GROUP_INDEX + phase;
     hasPositionedRef.current = true;
-  }, []);
+  }, [getInitialOffset]);
 
   const normalizeScroll = useCallback(() => {
     const strip = stripRef.current;
@@ -289,9 +300,10 @@ export default function AutoScrollStrip({
           >
             {items.map((item, itemIndex) => (
               <button
-                className={`auto-scroll-strip__item ${renderItem ? "auto-scroll-strip__item--custom" : ""}`}
+                className={`auto-scroll-strip__item ${renderItem ? "auto-scroll-strip__item--custom" : ""} ${item.itemClassName || ""}`}
                 type="button"
                 key={`${item.id || item.src || item.alt}-${groupIndex}-${itemIndex}`}
+                data-auto-scroll-index={itemIndex}
                 onClick={(event) => handleItemClick(event, item)}
                 aria-label={item.ariaLabel || `Preview ${item.path || item.alt || title}`}
               >

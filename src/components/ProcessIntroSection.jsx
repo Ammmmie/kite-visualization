@@ -230,7 +230,7 @@ const processSteps = [
     gif: step16Gif,
     image: { width: 554, height: 797 },
     placement: "final",
-    offsetY: 18,
+    offsetY: 48,
     description: "最后安装鹞尾，用来调整风筝飞行时的重心和姿态，使板鹞升空后更加平稳。"
   }
 ].map((step) => ({
@@ -244,6 +244,7 @@ const processItems = [
   {
     id: "process-complete",
     type: "complete",
+    itemClassName: "process-complete-item",
     title: "完成！",
     ariaLabel: "完成"
   }
@@ -342,6 +343,7 @@ export default function ProcessIntroSection() {
         className="process-auto-strip"
         title="制作流程"
         items={renderedItems}
+        initialIndex={0}
         onImageClick={handleProcessClick}
         renderItem={(item) => (item.type === "complete" ? <ProcessCompleteCard /> : <ProcessStepCard step={item} />)}
       />

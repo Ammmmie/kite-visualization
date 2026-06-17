@@ -158,7 +158,7 @@
   height: clamp(24px, 1.9vw, 31px);
   box-sizing: border-box;
   border-radius: 50%;
-  border: 2px solid #000;
+  border: 1px solid #000;
   background: transparent;
   color: #000;
   font-family: "Source Han Serif CN", "Songti SC", "SimSun", serif;
@@ -199,6 +199,10 @@
   height: 100%;
   padding: clamp(72px, 6vw, 108px) 0 clamp(58px, 5.6vw, 94px);
   text-align: center;
+}
+
+.process-complete-item {
+  margin-right: clamp(120px, 10vw, 240px);
 }
 
 .process-complete-card__shape {

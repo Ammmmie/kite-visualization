@@ -170,7 +170,7 @@
     const gl = seaCanvas.getContext("webgl", {
       antialias: true,
       alpha: true,
-      premultipliedAlpha: false,
+      premultipliedAlpha: true,
       powerPreference: "high-performance",
     });
     if (!gl) return null;
@@ -221,20 +221,14 @@
       "  vec2 disp=vec2(nrm.x*1.3,nrm.y)*REFLECT_DISTORT*20.0;" +
       "  disp*=depth;" +                                  // 远处几乎镜面，近处略扰
       "  vec4 c=texture2D(u_tex,uv+disp);" +
-      // Fresnel：越靠下视角越低，反射越强（轻微提亮压低饱和）
-      "  float fres=pow(1.0-depth,FRESNEL_POWER);" +
-      "  float reflectGain=mix(1.0,1.12,1.0-fres);" +
-      "  vec3 col=c.rgb*reflectGain;" +
-      // 柔和 shimmer：法线起伏处叠很淡的高光闪烁
-      "  float shim=pow(max(h0,0.0),3.0)*SHIMMER*depth;" +
-      "  col+=shim;" +
-      // 低饱和清晨调：轻微去饱和，向冷调柔化
-      "  float luma=dot(col,vec3(0.299,0.587,0.114));" +
-      "  col=mix(vec3(luma),col,0.88);" +
-      // 远处雾化：水面上缘向天空色淡入融合，避免硬边
-      "  float fog=smoothstep(0.40,0.52,uv.y);" +
-      "  float a=c.a*u_alpha*fog;" +
-      "  gl_FragColor=vec4(col,a);" +
+      // 忠实还原原图颜色：不提亮、不叠高光、不去饱和，保持原图的通透鲜亮
+      "  vec3 col=c.rgb;" +
+      // 远处雾化：水面上缘向天空色淡入融合
+      "  float fog=smoothstep(0.44,0.58,uv.y);" +
+      // 左右两侧渐隐
+      "  float edgeX=smoothstep(0.0,0.08,uv.x)*smoothstep(1.0,0.75,uv.x);" +
+      "  float a=c.a*u_alpha*fog*edgeX;" +
+      "  gl_FragColor=vec4(col*a,a);" +
       "}";
 
     function compile(type, src) {
@@ -262,7 +256,7 @@
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     const uTime = gl.getUniformLocation(prog, "u_time");
     const uAlpha = gl.getUniformLocation(prog, "u_alpha");

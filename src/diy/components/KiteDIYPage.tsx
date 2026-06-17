@@ -12,6 +12,7 @@ import type {
   WhistleEdgeAxisGroupId,
   WhistleFillDensity,
   WhistleLayoutMode,
+  WhistlePanelKey,
   WhistleSize,
 } from "../types/kite";
 import { FramePanel } from "./panels/FramePanel";
@@ -50,6 +51,7 @@ export function KiteDIYPage({
   const [centerColorCustomized, setCenterColorCustomized] = useState(false);
   const [cornerColorCustomized, setCornerColorCustomized] = useState(false);
   const [activeSurfacePanel, setActiveSurfacePanel] = useState<SurfacePanelKey>("intro");
+  const [activeWhistlePanel, setActiveWhistlePanel] = useState<WhistlePanelKey>("intro");
   const [hoveredWhistleAxisGroupId, setHoveredWhistleAxisGroupId] =
     useState<WhistleEdgeAxisGroupId | null>(null);
   const baseUnitFamily = hexagonFamilyShapes.has(config.kiteShape) ? "hexagon" : "octagon";
@@ -59,6 +61,11 @@ export function KiteDIYPage({
       setPreviewEnabled(true);
       setSurfaceEnabled(true);
       setActiveSurfacePanel("intro");
+    }
+
+    if (activePanel === "whistle") {
+      setWhistlesEnabled(true);
+      setActiveWhistlePanel("intro");
     }
 
     setConfig((currentConfig) => ({
@@ -90,6 +97,11 @@ export function KiteDIYPage({
       return;
     }
 
+    if (config.activePanel === "whistle" && activeWhistlePanel !== "intro") {
+      setActiveWhistlePanel("intro");
+      return;
+    }
+
     if (currentIndex < diySteps.length - 1) {
       goToStep(diySteps[currentIndex + 1]);
       return;
@@ -108,6 +120,7 @@ export function KiteDIYPage({
     updateConfig((currentConfig) => ({
       ...currentConfig,
       kiteShape,
+      selectedWhistleAxisGroupIds: [],
     }));
   }
 
@@ -168,6 +181,39 @@ export function KiteDIYPage({
     updateConfig((currentConfig) => ({
       ...currentConfig,
       whistleFillDensity,
+    }));
+  }
+
+  function handleWhistleDensityPercentChange(whistleDensityPercent: number) {
+    const clampedPercent = Math.max(0, Math.min(100, whistleDensityPercent));
+    const whistleFillDensity =
+      clampedPercent <= 33 ? "low" : clampedPercent <= 66 ? "mid" : "high";
+
+    setPreviewEnabled(true);
+    setWhistlesEnabled(true);
+    updateConfig((currentConfig) => ({
+      ...currentConfig,
+      whistleDensity: clampedPercent / 100,
+      whistleFillDensity,
+    }));
+  }
+
+  function handleWhistlePanelChange(nextWhistlePanel: WhistlePanelKey) {
+    setActiveWhistlePanel(nextWhistlePanel);
+
+    if (nextWhistlePanel === "intro") {
+      return;
+    }
+
+    const whistleLayoutMode: WhistleLayoutMode =
+      nextWhistlePanel === "edge" ? "edge" : "horizontal-staggered";
+
+    setPreviewEnabled(true);
+    setWhistlesEnabled(true);
+    updateConfig((currentConfig) => ({
+      ...currentConfig,
+      whistleLayoutMode,
+      selectedWhistleSizes: currentConfig.selectedWhistleSizes,
     }));
   }
 
@@ -290,7 +336,11 @@ export function KiteDIYPage({
         <aside className="diy-info-panel" aria-label="DIY 说明和控制面板">
           <div className="diy-info-header">
             <h2>
-              {config.activePanel === "surface" && activeSurfacePanel !== "intro" ? "" : "ABOUT"}
+              {config.activePanel === "surface" && activeSurfacePanel !== "intro"
+                ? ""
+                : config.activePanel === "whistle"
+                  ? ""
+                  : "ABOUT"}
             </h2>
             <button className="diy-ok-button" onClick={goToNextStep} type="button">
               OK
@@ -319,19 +369,16 @@ export function KiteDIYPage({
             ) : null}
 
             {config.activePanel === "whistle" ? (
-              <div className="diy-module-panel diy-module-panel-whistle">
-                <div className="diy-module-copy">
-                  <h3>哨口</h3>
-                  <p>选择覆盖式密度，或切换边缘式后在左侧风筝主轴上悬停和点击来选择哨口组。</p>
-                </div>
-                <WhistlePanel
-                  config={config}
-                  onDensityChange={handleWhistleFillDensityChange}
-                  onEdgeToggle={handleEdgeToggle}
-                  onLayoutChange={handleWhistleLayoutChange}
-                  onWhistleSizeToggle={handleWhistleSizeToggle}
-                />
-              </div>
+              <WhistlePanel
+                activeWhistlePanel={activeWhistlePanel}
+                config={config}
+                onDensityChange={handleWhistleFillDensityChange}
+                onDensityPercentChange={handleWhistleDensityPercentChange}
+                onEdgeToggle={handleEdgeToggle}
+                onLayoutChange={handleWhistleLayoutChange}
+                onPanelChange={handleWhistlePanelChange}
+                onWhistleSizeToggle={handleWhistleSizeToggle}
+              />
             ) : null}
           </div>
         </aside>

@@ -469,6 +469,14 @@ const diyEdgeChooseAssets={
     'choose-b':'/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-b.png',
     'choose-c':'/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-c.png'
   },
+  'nine-star':{
+    'choose-a':'/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-a.png',
+    'choose-b':'/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-b.png',
+    'choose-c':'/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-c.png',
+    'choose-d':'/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-d.png',
+    'choose-e':'/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-e.png',
+    'choose-f':'/diy-assets/whistles/自选边缘式/九连星/九连星-whistle-choose-f.png'
+  },
   'nineteen-star':{
     'choose-a':'/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-a.png',
     'choose-b':'/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-b.png',
@@ -487,7 +495,19 @@ const diyEdgeChooseAssets={
     'choose-d':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-d.png',
     'choose-e':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-e.png',
     'choose-f':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-f.png',
-    'choose-g':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-g.png'
+    'choose-g':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-g.png',
+    'choose-h':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-h.png'
+  },
+  'twenty-three-star':{
+    'choose-a':'/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-a.png',
+    'choose-b':'/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-b.png',
+    'choose-c':'/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-c.png',
+    'choose-d':'/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-d.png',
+    'choose-e':'/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-e.png',
+    'choose-f':'/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-f.png',
+    'choose-g':'/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-g.png',
+    'choose-h':'/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-h.png',
+    'choose-i':'/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-i.png'
   }
 };
 
@@ -556,7 +576,7 @@ function normalizeDiyKiteConfig(config){
   if(!Array.isArray(normalized.selectedWhistleSizes))normalized.selectedWhistleSizes=[];
   normalized.selectedWhistleSizes=normalized.selectedWhistleSizes.filter(size=>['small','medium','large'].includes(size));
   if(!Array.isArray(normalized.selectedWhistleAxisGroupIds))normalized.selectedWhistleAxisGroupIds=[];
-  normalized.selectedWhistleAxisGroupIds=normalized.selectedWhistleAxisGroupIds.filter(id=>['choose-a','choose-b','choose-c','choose-d','choose-e','choose-f','choose-g','choose-h','choose-i'].includes(id));
+  normalized.selectedWhistleAxisGroupIds=normalized.selectedWhistleAxisGroupIds.filter(id=>['choose-a','choose-b','choose-c','choose-d','choose-e','choose-f','choose-g','choose-h','choose-i','choose-j','choose-k'].includes(id));
 
   return normalized;
 }

@@ -204,6 +204,30 @@ button:focus-visible {
   stroke: rgba(255, 255, 255, 0.94);
 }
 
+.whistle-edge-hit-canvas-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.whistle-edge-hit-debug-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.24;
+  pointer-events: none;
+}
+
+.whistle-edge-hit-debug-image-hovered,
+.whistle-edge-hit-debug-image-selected {
+  opacity: 0.46;
+}
+
 .kite-surface-pattern-layer {
   position: absolute;
   inset: 0;
@@ -1110,6 +1134,10 @@ button:focus-visible {
   scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
 }
 
+.diy-info-content:has(.whistle-new-panel) {
+  overflow: hidden;
+}
+
 .frame-about-content {
   display: grid;
   min-height: 100%;
@@ -1673,6 +1701,317 @@ button:focus-visible {
   width: min(86px, 72%);
   height: min(72px, 8.5vh);
   filter: brightness(0);
+}
+
+.whistle-new-panel {
+  display: grid;
+  min-height: 100%;
+  color: #111111;
+}
+
+.whistle-intro-panel {
+  grid-template-rows: auto minmax(270px, 1fr) auto;
+  gap: clamp(12px, 1.8vh, 24px);
+  overflow: hidden;
+}
+
+.whistle-intro-copy h3,
+.whistle-editor h3 {
+  margin: 0;
+  color: #000000;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(30px, 2.45vw, 48px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.whistle-intro-copy p {
+  margin: clamp(10px, 1.45vh, 18px) 0 0;
+  color: #282828;
+  font-size: clamp(12px, 0.78vw, 15px);
+  font-weight: 300;
+  line-height: 1.58;
+}
+
+.whistle-intro-copy .whistle-intro-copy-en {
+  color: rgba(40, 40, 40, 0.66);
+  font-size: clamp(10px, 0.66vw, 12px);
+  line-height: 1.42;
+}
+
+.whistle-arrangement-entry-list {
+  display: grid;
+  align-self: end;
+  gap: clamp(10px, 1.8vh, 22px);
+}
+
+.whistle-arrangement-entry {
+  display: grid;
+  grid-template-columns: minmax(72px, 31%) minmax(0, 1fr) clamp(72px, 5.4vw, 104px);
+  gap: 16px;
+  align-items: end;
+  padding: 0;
+  border: 0;
+  color: #111111;
+  background: transparent;
+  text-align: left;
+}
+
+.whistle-arrangement-entry-icon {
+  width: min(100%, 118px);
+  aspect-ratio: 1;
+  justify-self: center;
+  object-fit: contain;
+  filter: saturate(1.05);
+}
+
+.whistle-arrangement-entry-copy {
+  display: grid;
+  gap: 5px;
+  padding-bottom: 6px;
+}
+
+.whistle-arrangement-entry-copy strong {
+  font-size: clamp(18px, 1.05vw, 20px);
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+.whistle-arrangement-entry-copy small {
+  font-size: clamp(13px, 0.8vw, 15px);
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+.whistle-arrangement-arrow {
+  display: grid;
+  min-height: 40px;
+  place-items: center;
+  margin-bottom: 10px;
+  border: 1px solid #111111;
+  border-radius: 999px;
+  color: #111111;
+  background: transparent;
+  font-size: 24px;
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.whistle-arrangement-entry:first-child .whistle-arrangement-arrow,
+.whistle-arrangement-entry:hover .whistle-arrangement-arrow {
+  color: #ffffff;
+  background: #000000;
+}
+
+.whistle-arrangement-entry:hover .whistle-arrangement-arrow {
+  transform: translateX(4px);
+}
+
+.whistle-editor {
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  gap: clamp(12px, 1.85vh, 22px);
+  overflow: hidden;
+}
+
+.whistle-layout-toggle-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: center;
+}
+
+.whistle-layout-preview-button {
+  display: grid;
+  min-height: clamp(96px, 14vh, 150px);
+  place-items: center;
+  padding: 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  opacity: 0.36;
+  transition:
+    opacity 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.whistle-layout-preview-button:hover {
+  opacity: 0.72;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.whistle-layout-preview-button-active {
+  opacity: 1;
+}
+
+.whistle-layout-preview-button-active:hover {
+  opacity: 1;
+}
+
+.whistle-layout-preview-button img {
+  width: min(100%, 128px);
+  height: min(12vh, 128px);
+  object-fit: contain;
+}
+
+.whistle-editor-section {
+  display: grid;
+  gap: 14px;
+}
+
+.whistle-editor-section-heading {
+  display: grid;
+  gap: 4px;
+}
+
+.whistle-editor-section-heading strong {
+  color: #111111;
+  font-size: clamp(18px, 1.1vw, 22px);
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+.whistle-editor-section-heading small {
+  color: rgba(17, 17, 17, 0.68);
+  font-size: clamp(12px, 0.76vw, 15px);
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+.whistle-type-list {
+  display: grid;
+  gap: 10px;
+}
+
+.whistle-type-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  gap: 12px;
+  align-items: center;
+}
+
+.whistle-type-select-button,
+.whistle-type-play-button {
+  min-height: 40px;
+  border: 1px solid rgba(17, 17, 17, 0.62);
+  color: #111111;
+  background: transparent;
+  font-size: clamp(13px, 0.82vw, 16px);
+  font-weight: 300;
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.whistle-type-select-button {
+  border-radius: 5px;
+  text-align: center;
+}
+
+.whistle-type-play-button {
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+}
+
+.whistle-type-item:hover .whistle-type-select-button,
+.whistle-type-item-selected .whistle-type-select-button {
+  color: #ffffff;
+  background: #000000;
+  border-color: #000000;
+}
+
+.whistle-type-play-button:hover {
+  color: #ffffff;
+  background: #000000;
+  border-color: #000000;
+}
+
+.whistle-density-heading {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.whistle-density-heading span {
+  display: grid;
+  gap: 4px;
+}
+
+.whistle-density-heading output {
+  color: #000000;
+  font-size: clamp(22px, 1.5vw, 30px);
+  font-weight: 300;
+  line-height: 1;
+}
+
+.whistle-density-slider {
+  width: 100%;
+  height: 32px;
+  padding: 0;
+  appearance: none;
+  background: transparent;
+}
+
+.whistle-density-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background:
+    linear-gradient(#000000, #000000) 0 / var(--density-percent) 100% no-repeat,
+    rgba(17, 17, 17, 0.24);
+}
+
+.whistle-density-slider::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  appearance: none;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  background: #000000;
+}
+
+.whistle-density-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.24);
+}
+
+.whistle-density-slider::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: #000000;
+}
+
+.whistle-density-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  background: #000000;
+}
+
+.whistle-edge-instruction p {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.72);
+  font-size: clamp(12px, 0.78vw, 15px);
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+.whistle-panel-footnote {
+  align-self: end;
+  margin: 0;
+  color: #111111;
+  font-size: clamp(10px, 0.66vw, 12px);
+  font-weight: 300;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .diy-step-dial {

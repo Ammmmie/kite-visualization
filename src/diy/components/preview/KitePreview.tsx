@@ -5,6 +5,7 @@ import {
   usesSingleUnitCenterFallback,
 } from "../../data/surfaceAssets";
 import {
+  getWhistleEdgeAxisGroupIds,
   getWhistleEdgeChooseAsset,
   getWhistleFillLayers,
 } from "../../data/whistleAssets";
@@ -50,12 +51,8 @@ export function KitePreview({
     config.selectedWhistleSizes,
   );
   const isEdgeMode = config.whistleLayoutMode === "edge";
-  const canUseEdgeHitAreas =
-    isEdgeMode &&
-    (config.kiteShape === "hexagon" ||
-      config.kiteShape === "seven-star" ||
-      config.kiteShape === "eight-star" ||
-      config.kiteShape === "nineteen-star");
+  const edgeAxisGroupIds = getWhistleEdgeAxisGroupIds(config.kiteShape);
+  const canUseEdgeHitAreas = isEdgeMode && edgeAxisGroupIds.length > 0;
   const hoveredEdgeAsset = hoveredWhistleAxisGroupId
     ? getWhistleEdgeChooseAsset(config.kiteShape, hoveredWhistleAxisGroupId)
     : undefined;

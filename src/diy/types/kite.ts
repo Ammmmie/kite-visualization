@@ -16,6 +16,8 @@ export type PanelKey = "frame" | "surface" | "whistle";
 
 export type SurfacePanelKey = "intro" | "center" | "corner" | "frameColor";
 
+export type WhistlePanelKey = "intro" | "coverage" | "edge";
+
 export type WhistleLayoutMode = "horizontal-staggered" | "edge";
 
 export type EdgeKey = "top" | "right" | "bottom" | "left";
@@ -35,7 +37,9 @@ export type WhistleEdgeAxisGroupId =
   | "choose-f"
   | "choose-g"
   | "choose-h"
-  | "choose-i";
+  | "choose-i"
+  | "choose-j"
+  | "choose-k";
 
 export interface WhistleInstance {
   id: string;

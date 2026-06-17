@@ -14,6 +14,8 @@ export type SurfacePatternId = "a" | "b" | "c" | "d" | "e" | "f";
 
 export type PanelKey = "frame" | "surface" | "whistle";
 
+export type SurfacePanelKey = "intro" | "center" | "corner" | "frameColor";
+
 export type WhistleLayoutMode = "horizontal-staggered" | "edge";
 
 export type EdgeKey = "top" | "right" | "bottom" | "left";
@@ -57,6 +59,9 @@ export interface KiteDIYConfig {
   cornerPatternId: SurfacePatternId;
   cornerPatternPrimaryColor: string;
   cornerPatternSecondaryColor: string;
+
+  framePrimaryColor: string;
+  frameSecondaryColor: string;
 
   surfaceBaseColor: string;
 

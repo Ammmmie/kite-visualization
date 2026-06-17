@@ -22,6 +22,9 @@ export const defaultKiteDIYConfig: KiteDIYConfig = {
   cornerPatternPrimaryColor: "#FFFFCC",
   cornerPatternSecondaryColor: "#F7F1D4",
 
+  framePrimaryColor: "#FFFFFF",
+  frameSecondaryColor: "#FFFFFF",
+
   surfaceBaseColor: "#BFE6E6",
 
   whistleLayoutMode: "horizontal-staggered",

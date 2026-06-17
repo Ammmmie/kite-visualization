@@ -531,8 +531,12 @@ function normalizeDiyKiteConfig(config){
     kiteShape:'seven-star',
     centerPatternId:'a',
     centerPatternPrimaryColor:'#D9FFFF',
+    centerPatternSecondaryColor:'#8FD6D0',
     cornerPatternId:'a',
     cornerPatternPrimaryColor:'#FFFFCC',
+    cornerPatternSecondaryColor:'#F7F1D4',
+    framePrimaryColor:'#FFFFFF',
+    frameSecondaryColor:'#FFFFFF',
     surfaceBaseColor:'#BFE6E6',
     whistleLayoutMode:'horizontal-staggered',
     whistleFillDensity:'mid',
@@ -712,7 +716,7 @@ function drawDiyKite(ctx,config,kW,kH){
     drawColoredDiyMask(ctx,cornerImg,x,y,kW,kH,config.cornerPatternPrimaryColor,1);
   }
 
-  drawColoredDiyMask(ctx,frameImg,x,y,kW,kH,'#ffffff',1);
+  drawColoredDiyMask(ctx,frameImg,x,y,kW,kH,config.framePrimaryColor,1);
 
   getDiyWhistleLayerAssets(config).forEach(src=>{
     const whistleImg=loadDiyImage(src);

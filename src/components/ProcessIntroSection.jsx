@@ -4,7 +4,7 @@ import StepInfoPopover from "./StepInfoPopover.jsx";
 import "../styles/processIntro.css";
 
 import titleIcon from "../assets/figma/小icon1.png?url";
-import completeShape from "../assets/figma/process/完成六边形.png?url";
+import completeShape from "../assets/figma/process/complete-icon.png?url";
 
 import step01Image from "../assets/figma/process/image 327.png?url";
 import step02Image from "../assets/figma/process/image 329.png?url";
@@ -230,7 +230,7 @@ const processSteps = [
     gif: step16Gif,
     image: { width: 554, height: 797 },
     placement: "final",
-    offsetY: 48,
+    offsetY: 76,
     description: "最后安装鹞尾，用来调整风筝飞行时的重心和姿态，使板鹞升空后更加平稳。"
   }
 ].map((step) => ({
@@ -298,8 +298,7 @@ function ProcessStepCard({ step }) {
 function ProcessCompleteCard() {
   return (
     <div className="process-complete-card" aria-label="完成">
-      <img className="process-complete-card__shape" src={completeShape} alt="" aria-hidden="true" draggable="false" />
-      <p className="process-complete-card__text">完成！</p>
+      <img className="process-complete-card__shape" src={completeShape} alt="完成" draggable="false" />
     </div>
   );
 }

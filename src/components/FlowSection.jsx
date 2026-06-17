@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function FlowSection({
   children,
@@ -9,6 +9,8 @@ export default function FlowSection({
   const panes = useMemo(() => (Array.isArray(children) ? children : [children]), [children]);
   const [step, setStep] = useState(initialStep);
   const [maxReached, setMaxReached] = useState(initialStep);
+  const [leavingSteps, setLeavingSteps] = useState([]);
+  const leavingTimersRef = useRef(new Map());
 
   useEffect(() => {
     document.body.classList.add("flow-scroll-locked");
@@ -17,8 +19,45 @@ export default function FlowSection({
     return () => {
       document.body.classList.remove("flow-scroll-locked");
       document.documentElement.classList.remove("flow-scroll-locked");
+      leavingTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
+      leavingTimersRef.current.clear();
     };
   }, []);
+
+  const setLeavingStep = (leavingStep) => {
+    setLeavingSteps((currentLeavingSteps) =>
+      currentLeavingSteps.includes(leavingStep)
+        ? currentLeavingSteps
+        : [...currentLeavingSteps, leavingStep]
+    );
+
+    const existingTimer = leavingTimersRef.current.get(leavingStep);
+    if (existingTimer) {
+      window.clearTimeout(existingTimer);
+    }
+
+    const timerId = window.setTimeout(() => {
+      setLeavingSteps((currentLeavingSteps) =>
+        currentLeavingSteps.filter((currentLeavingStep) => currentLeavingStep !== leavingStep)
+      );
+      leavingTimersRef.current.delete(leavingStep);
+    }, 560);
+
+    leavingTimersRef.current.set(leavingStep, timerId);
+  };
+
+  const transitionTo = (targetStep) => {
+    if (targetStep === step) {
+      return true;
+    }
+
+    setLeavingStep(step);
+    setLeavingSteps((currentLeavingSteps) =>
+      currentLeavingSteps.filter((currentLeavingStep) => currentLeavingStep !== targetStep)
+    );
+    setStep(targetStep);
+    return true;
+  };
 
   const goTo = (targetStep) => {
     if (targetStep < 0 || targetStep >= panes.length) {
@@ -29,8 +68,7 @@ export default function FlowSection({
       return false;
     }
 
-    setStep(targetStep);
-    return true;
+    return transitionTo(targetStep);
   };
 
   const goNext = () => {
@@ -39,7 +77,7 @@ export default function FlowSection({
       return false;
     }
 
-    setStep(nextStep);
+    transitionTo(nextStep);
     setMaxReached((currentMaxReached) => Math.max(currentMaxReached, nextStep));
     return true;
   };
@@ -47,13 +85,17 @@ export default function FlowSection({
   return (
     <section className={`flow-section ${className}`.trim()}>
       <div className="flow-section__viewport">
-        <div
-          className="flow-section__track"
-          style={{ transform: `translateX(-${step * 33.3333}%)` }}
-        >
+        <div className="flow-section__track">
           {panes.map((pane, index) => (
             <section
-              className="flow-section__pane"
+              className={[
+                "flow-section__pane",
+                index === step
+                  ? "flow-section__pane--active"
+                  : leavingSteps.includes(index)
+                    ? "flow-section__pane--leaving"
+                    : "flow-section__pane--entering"
+              ].join(" ")}
               data-active={index === step ? "true" : "false"}
               key={index}
             >

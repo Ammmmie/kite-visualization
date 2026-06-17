@@ -19,6 +19,7 @@ const sizeFilePrefix: Record<WhistleSize, string> = {
   medium: "m",
   large: "l",
 };
+const twentyThreeStarWhistleAssetVersion = "?v=20260618-1";
 
 export interface WhistleFillLayer {
   id: string;
@@ -74,15 +75,15 @@ const edgeChooseAssets: Partial<Record<KiteShape, Partial<Record<WhistleEdgeAxis
     "choose-h": "/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-h.png",
   },
   "twenty-three-star": {
-    "choose-a": "/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-a.png",
-    "choose-b": "/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-b.png",
-    "choose-c": "/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-c.png",
-    "choose-d": "/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-d.png",
-    "choose-e": "/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-e.png",
-    "choose-f": "/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-f.png",
-    "choose-g": "/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-g.png",
-    "choose-h": "/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-h.png",
-    "choose-i": "/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-i.png",
+    "choose-a": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-a.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-b": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-b.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-c": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-c.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-d": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-d.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-e": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-e.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-f": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-f.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-g": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-g.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-h": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-h.png${twentyThreeStarWhistleAssetVersion}`,
+    "choose-i": `/diy-assets/whistles/自选边缘式/二十三连星/二十三连星-whistle-choose-i.png${twentyThreeStarWhistleAssetVersion}`,
   },
 };
 

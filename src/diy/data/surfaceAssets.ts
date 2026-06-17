@@ -56,8 +56,8 @@ export function getSurfaceLayoutAsset(
       ? "?v=20260614-4"
       : kiteShape === "eight-star" && area === "corner"
         ? "?v=20260614-2"
-        : kiteShape === "nine-star"
-          ? "?v=20260614-2"
+        : kiteShape === "nine-star" || kiteShape === "twenty-three-star"
+          ? "?v=20260617-1"
           : "";
   return `/diy-assets/surface/layouts/${area}/${folderName}/${folderName}-${fileArea}-${patternId}.svg${version}`;
 }
@@ -80,8 +80,10 @@ export function getKiteFrameAsset(kiteShape: KiteShape): string {
   const version =
     kiteShape === "hexagon"
       ? "?v=20260614-4"
-      : kiteShape === "eight-star" || kiteShape === "nine-star"
+      : kiteShape === "eight-star"
         ? "?v=20260614-2"
+      : kiteShape === "nine-star" || kiteShape === "twenty-three-star"
+        ? "?v=20260617-1"
       : kiteShape === "nineteen-star"
         ? "?v=20260614-2"
         : "";

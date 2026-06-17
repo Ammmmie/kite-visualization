@@ -456,10 +456,39 @@ const diyKiteShapeFolderName={
 };
 const diyEightStarVariantPatternIds=new Set(['c','d','e','f']);
 const diyWhistleSizePrefix={small:'s',medium:'m',large:'l'};
-const diyHexagonEdgeChooseAssets={
-  'choose-a':'/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-a.png',
-  'choose-b':'/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-b.png',
-  'choose-c':'/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-c.png'
+const diyEdgeChooseAssets={
+  'eight-star':{
+    'choose-a':'/diy-assets/whistles/自选边缘式/八角星/八角星-whistle-choose-a.png',
+    'choose-b':'/diy-assets/whistles/自选边缘式/八角星/八角星-whistle-choose-b.png',
+    'choose-c':'/diy-assets/whistles/自选边缘式/八角星/八角星-whistle-choose-c.png',
+    'choose-d':'/diy-assets/whistles/自选边缘式/八角星/八角星-whistle-choose-d.png',
+    'choose-e':'/diy-assets/whistles/自选边缘式/八角星/八角星-whistle-choose-e.png'
+  },
+  'hexagon':{
+    'choose-a':'/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-a.png',
+    'choose-b':'/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-b.png',
+    'choose-c':'/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-c.png'
+  },
+  'nineteen-star':{
+    'choose-a':'/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-a.png',
+    'choose-b':'/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-b.png',
+    'choose-c':'/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-c.png',
+    'choose-d':'/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-d.png',
+    'choose-e':'/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-e.png',
+    'choose-f':'/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-f.png',
+    'choose-g':'/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-g.png',
+    'choose-h':'/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-h.png',
+    'choose-i':'/diy-assets/whistles/自选边缘式/十九连星/十九连星-whistle-choose-i.png'
+  },
+  'seven-star':{
+    'choose-a':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-a.png',
+    'choose-b':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-b.png',
+    'choose-c':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-c.png',
+    'choose-d':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-d.png',
+    'choose-e':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-e.png',
+    'choose-f':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-f.png',
+    'choose-g':'/diy-assets/whistles/自选边缘式/七连星/七连星-whistle-choose-g.png'
+  }
 };
 
 function isImageReady(img){
@@ -523,7 +552,7 @@ function normalizeDiyKiteConfig(config){
   if(!Array.isArray(normalized.selectedWhistleSizes))normalized.selectedWhistleSizes=[];
   normalized.selectedWhistleSizes=normalized.selectedWhistleSizes.filter(size=>['small','medium','large'].includes(size));
   if(!Array.isArray(normalized.selectedWhistleAxisGroupIds))normalized.selectedWhistleAxisGroupIds=[];
-  normalized.selectedWhistleAxisGroupIds=normalized.selectedWhistleAxisGroupIds.filter(id=>['choose-a','choose-b','choose-c','choose-d'].includes(id));
+  normalized.selectedWhistleAxisGroupIds=normalized.selectedWhistleAxisGroupIds.filter(id=>['choose-a','choose-b','choose-c','choose-d','choose-e','choose-f','choose-g','choose-h','choose-i'].includes(id));
 
   return normalized;
 }
@@ -538,8 +567,10 @@ function getDiyKiteFrameAsset(kiteShape){
   const folderName=diyKiteShapeFolderName[kiteShape];
   const version=kiteShape==='hexagon'
     ?'?v=20260614-4'
-    :kiteShape==='eight-star'||kiteShape==='nine-star'||kiteShape==='nineteen-star'
+    :kiteShape==='eight-star'||kiteShape==='nineteen-star'
       ?'?v=20260614-2'
+      :kiteShape==='nine-star'||kiteShape==='twenty-three-star'
+        ?'?v=20260617-1'
       :'';
   return `/diy-assets/frames/frame-${folderName}.svg${version}`;
 }
@@ -570,8 +601,8 @@ function getDiySurfaceLayoutAsset(area,kiteShape,patternId){
     ?'?v=20260614-4'
     :kiteShape==='eight-star'&&area==='corner'
       ?'?v=20260614-2'
-      :kiteShape==='nine-star'
-        ?'?v=20260614-2'
+    :kiteShape==='nine-star'||kiteShape==='twenty-three-star'
+        ?'?v=20260617-1'
         :'';
   return `/diy-assets/surface/layouts/${area}/${folderName}/${folderName}-${fileArea}-${patternId}.svg${version}`;
 }
@@ -623,7 +654,7 @@ function drawColoredDiyMask(ctx,img,x,y,w,h,color,alpha){
 }
 
 function getDiyWhistleFillAsset(kiteShape,density,size){
-  const folderName=kiteShape==='hexagon'||kiteShape==='seven-star'||kiteShape==='eight-star'||kiteShape==='nineteen-star'
+  const folderName=kiteShape==='hexagon'||kiteShape==='seven-star'||kiteShape==='eight-star'||kiteShape==='nine-star'||kiteShape==='nineteen-star'||kiteShape==='twenty-three-star'
     ?diyKiteShapeFolderName[kiteShape]
     :null;
   if(!folderName)return null;
@@ -638,9 +669,9 @@ function getDiyWhistleLayerAssets(config){
   if(config.whistlesEnabled===false)return [];
 
   if(config.whistleLayoutMode==='edge'){
-    if(config.kiteShape!=='hexagon')return [];
+    if(config.kiteShape!=='hexagon'&&config.kiteShape!=='seven-star'&&config.kiteShape!=='eight-star'&&config.kiteShape!=='nineteen-star')return [];
     return config.selectedWhistleAxisGroupIds
-      .map(axisGroupId=>diyHexagonEdgeChooseAssets[axisGroupId])
+      .map(axisGroupId=>diyEdgeChooseAssets[config.kiteShape]?.[axisGroupId])
       .filter(Boolean);
   }
 
@@ -681,7 +712,7 @@ function drawDiyKite(ctx,config,kW,kH){
     drawColoredDiyMask(ctx,cornerImg,x,y,kW,kH,config.cornerPatternPrimaryColor,1);
   }
 
-  ctx.drawImage(frameImg,x,y,kW,kH);
+  drawColoredDiyMask(ctx,frameImg,x,y,kW,kH,'#ffffff',1);
 
   getDiyWhistleLayerAssets(config).forEach(src=>{
     const whistleImg=loadDiyImage(src);

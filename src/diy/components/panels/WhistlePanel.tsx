@@ -26,10 +26,15 @@ export function WhistlePanel({
   onWhistleSizeToggle,
 }: WhistlePanelProps) {
   const isFillMode = config.whistleLayoutMode === "horizontal-staggered";
+  const supportsEdgeMode =
+    config.kiteShape === "hexagon" ||
+    config.kiteShape === "seven-star" ||
+    config.kiteShape === "eight-star" ||
+    config.kiteShape === "nineteen-star";
   const edgeModeNote =
-    config.kiteShape === "hexagon"
+    supportsEdgeMode
       ? "悬停风筝主轴预览哨口，点击选择，再次点击取消"
-      : "边缘式当前先支持六角星测试";
+      : "边缘式当前先支持六角星、七连星、八角星、十九连星测试";
 
   return (
     <div className="whistle-panel">

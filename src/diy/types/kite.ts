@@ -24,7 +24,16 @@ export type WhistleFillDensity = "low" | "mid" | "high";
 
 export type WhistleSize = "small" | "medium" | "large";
 
-export type WhistleEdgeAxisGroupId = "choose-a" | "choose-b" | "choose-c" | "choose-d";
+export type WhistleEdgeAxisGroupId =
+  | "choose-a"
+  | "choose-b"
+  | "choose-c"
+  | "choose-d"
+  | "choose-e"
+  | "choose-f"
+  | "choose-g"
+  | "choose-h"
+  | "choose-i";
 
 export interface WhistleInstance {
   id: string;

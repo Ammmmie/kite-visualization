@@ -1,4 +1,6 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
+import { frameInfo } from "../data/frameInfo";
+import { frameOptions } from "../data/frameOptions";
 import { createDefaultKiteDIYConfig, saveKiteConfig } from "../logic/kiteConfig";
 import type {
   EdgeKey,
@@ -22,6 +24,8 @@ const panelLabels: Record<PanelKey, string> = {
   whistle: "\u54e8\u53e3",
 };
 
+const diySteps: PanelKey[] = ["frame", "surface", "whistle"];
+
 interface KiteDIYPageProps {
   mode?: "embedded" | "standalone";
   onBack?: () => void;
@@ -35,7 +39,7 @@ export function KiteDIYPage({
 }: KiteDIYPageProps) {
   const isStandalone = mode === "standalone";
   const [config, setConfig] = useState<KiteDIYConfig>(() => createDefaultKiteDIYConfig());
-  const [previewEnabled, setPreviewEnabled] = useState(false);
+  const [previewEnabled, setPreviewEnabled] = useState(true);
   const [surfaceEnabled, setSurfaceEnabled] = useState(false);
   const [whistlesEnabled, setWhistlesEnabled] = useState(false);
   const [centerPatternSelected, setCenterPatternSelected] = useState(false);
@@ -55,6 +59,32 @@ export function KiteDIYPage({
       ...currentConfig,
       activePanel,
     }));
+  }
+
+  function goToStep(nextPanel: PanelKey) {
+    setActivePanel(nextPanel);
+  }
+
+  function goToPreviousStep() {
+    const currentIndex = diySteps.indexOf(config.activePanel);
+
+    if (currentIndex <= 0) {
+      onBack?.();
+      return;
+    }
+
+    goToStep(diySteps[currentIndex - 1]);
+  }
+
+  function goToNextStep() {
+    const currentIndex = diySteps.indexOf(config.activePanel);
+
+    if (currentIndex < diySteps.length - 1) {
+      goToStep(diySteps[currentIndex + 1]);
+      return;
+    }
+
+    handleFinish();
   }
 
   function updateConfig(updater: (currentConfig: KiteDIYConfig) => KiteDIYConfig) {
@@ -196,6 +226,29 @@ export function KiteDIYPage({
       <div className="diy-stage">
         <h1 className="visually-hidden">{"\u5357\u901a\u677f\u9e5e\u98ce\u7b5d DIY Demo"}</h1>
 
+        <div className="diy-title-lockup" aria-hidden="true">
+          <p>制作风筝</p>
+          <span className="diy-title-icon diy-title-icon-primary" />
+          <span className="diy-title-icon diy-title-icon-muted" />
+        </div>
+
+        <nav className="diy-step-tabs" aria-label="DIY 模块">
+          {diySteps.map((step) => (
+            <button
+              aria-pressed={config.activePanel === step}
+              className={`diy-step-tab${config.activePanel === step ? " diy-step-tab-active" : ""}`}
+              key={step}
+              onClick={() => goToStep(step)}
+              type="button"
+            >
+              <span>{panelLabels[step]}</span>
+              <span aria-hidden="true" className="diy-step-tab-mark">
+                {config.activePanel === step ? "\u00d7" : ""}
+              </span>
+            </button>
+          ))}
+        </nav>
+
         <KitePreview
           config={config}
           centerPatternSelected={centerPatternSelected}
@@ -208,66 +261,68 @@ export function KiteDIYPage({
           whistlesEnabled={whistlesEnabled}
         />
 
-        <aside className="control-panel" aria-label="\u53c2\u6570\u9009\u62e9\u9762\u677f">
-          <AccordionSection
-            isOpen={config.activePanel === "frame"}
-            label={panelLabels.frame}
-            onToggle={() => setActivePanel("frame")}
-          >
-            <FramePanel onShapeChange={handleShapeChange} selectedShape={config.kiteShape} />
-          </AccordionSection>
+        <StepDial
+          activePanel={config.activePanel}
+          onBack={goToPreviousStep}
+          onNext={goToNextStep}
+        />
 
-          <AccordionSection
-            isOpen={config.activePanel === "surface"}
-            label={panelLabels.surface}
-            onToggle={() => setActivePanel("surface")}
-          >
-            <SurfacePanel
-              centerPatternSelected={centerPatternSelected}
-              centerPlaceholderColor={
-                centerColorCustomized ? config.centerPatternPrimaryColor : "#B4B4B4"
-              }
-              config={config}
-              cornerPatternSelected={cornerPatternSelected}
-              cornerPlaceholderColor={
-                cornerColorCustomized ? config.cornerPatternPrimaryColor : "#B4B4B4"
-              }
-              onCenterPatternChange={handleCenterPatternChange}
-              onColorChange={handleSurfaceColorChange}
-              onCornerPatternChange={handleCornerPatternChange}
-            />
-          </AccordionSection>
+        <aside className="diy-info-panel" aria-label="DIY 说明和控制面板">
+          <div className="diy-info-header">
+            <h2>ABOUT</h2>
+            <button className="diy-ok-button" onClick={goToNextStep} type="button">
+              OK
+            </button>
+          </div>
 
-          <AccordionSection
-            isOpen={config.activePanel === "whistle"}
-            label={panelLabels.whistle}
-            onToggle={() => setActivePanel("whistle")}
-          >
-            <WhistlePanel
-              config={config}
-              onDensityChange={handleWhistleFillDensityChange}
-              onEdgeToggle={handleEdgeToggle}
-              onLayoutChange={handleWhistleLayoutChange}
-              onWhistleSizeToggle={handleWhistleSizeToggle}
-            />
-          </AccordionSection>
+          <div className="diy-info-content">
+            {config.activePanel === "frame" ? (
+              <FrameAboutContent
+                onShapeChange={handleShapeChange}
+                selectedShape={config.kiteShape}
+              />
+            ) : null}
+
+            {config.activePanel === "surface" ? (
+              <div className="diy-module-panel diy-module-panel-surface">
+                <div className="diy-module-copy">
+                  <h3>鹞面</h3>
+                  <p>选择星中与星角纹样，并为图案指定颜色。左侧预览会实时叠加到当前骨架上。</p>
+                </div>
+                <SurfacePanel
+                  centerPatternSelected={centerPatternSelected}
+                  centerPlaceholderColor={
+                    centerColorCustomized ? config.centerPatternPrimaryColor : "#B4B4B4"
+                  }
+                  config={config}
+                  cornerPatternSelected={cornerPatternSelected}
+                  cornerPlaceholderColor={
+                    cornerColorCustomized ? config.cornerPatternPrimaryColor : "#B4B4B4"
+                  }
+                  onCenterPatternChange={handleCenterPatternChange}
+                  onColorChange={handleSurfaceColorChange}
+                  onCornerPatternChange={handleCornerPatternChange}
+                />
+              </div>
+            ) : null}
+
+            {config.activePanel === "whistle" ? (
+              <div className="diy-module-panel diy-module-panel-whistle">
+                <div className="diy-module-copy">
+                  <h3>哨口</h3>
+                  <p>选择覆盖式密度，或切换边缘式后在左侧风筝主轴上悬停和点击来选择哨口组。</p>
+                </div>
+                <WhistlePanel
+                  config={config}
+                  onDensityChange={handleWhistleFillDensityChange}
+                  onEdgeToggle={handleEdgeToggle}
+                  onLayoutChange={handleWhistleLayoutChange}
+                  onWhistleSizeToggle={handleWhistleSizeToggle}
+                />
+              </div>
+            ) : null}
+          </div>
         </aside>
-
-        {isStandalone ? (
-          <>
-            <button className="diy-action-button diy-back-button" onClick={onBack} type="button">
-              <span aria-hidden="true">{"\u2190"}</span>
-              {"\u8fd4\u56de"}
-            </button>
-            <button
-              className="diy-action-button diy-finish-button"
-              onClick={handleFinish}
-              type="button"
-            >
-              {"\u5b8c\u6210"}
-            </button>
-          </>
-        ) : null}
       </div>
     </section>
   );
@@ -280,33 +335,55 @@ export type SurfaceColorField =
   | "cornerPatternSecondaryColor"
   | "surfaceBaseColor";
 
-interface AccordionSectionProps {
-  children: ReactNode;
-  isOpen: boolean;
-  label: string;
-  onToggle: () => void;
+interface FrameAboutContentProps {
+  onShapeChange: (shape: KiteShape) => void;
+  selectedShape: KiteShape;
 }
 
-function AccordionSection({ children, isOpen, label, onToggle }: AccordionSectionProps) {
-  const contentId = `panel-${label}`;
+function FrameAboutContent({ onShapeChange, selectedShape }: FrameAboutContentProps) {
+  const info = frameInfo[selectedShape];
 
   return (
-    <section className={`accordion-section${isOpen ? " accordion-section-open" : ""}`}>
-      <button
-        aria-controls={contentId}
-        aria-expanded={isOpen}
-        className="accordion-trigger"
-        onClick={onToggle}
-        type="button"
-      >
-        <span>{label}</span>
-        <span aria-hidden="true" className="accordion-chevron" />
+    <div className="frame-about-content">
+      <div className="frame-about-copy">
+        <h3>{info.title}</h3>
+        <p>{info.cn}</p>
+        <p className="frame-about-copy-en">{info.en}</p>
+      </div>
+
+      <FramePanel onShapeChange={onShapeChange} selectedShape={selectedShape} />
+
+      <p className="frame-about-hint">
+        选择一种基础形状，观察简单的几何单元如何逐步生长为完整的板鹞骨架
+      </p>
+    </div>
+  );
+}
+
+interface StepDialProps {
+  activePanel: PanelKey;
+  onBack: () => void;
+  onNext: () => void;
+}
+
+function StepDial({ activePanel, onBack, onNext }: StepDialProps) {
+  const currentStep = diySteps.indexOf(activePanel) + 1;
+
+  return (
+    <div className="diy-step-dial" aria-label={`当前步骤 ${currentStep} / 3`}>
+      <button className="diy-step-dial-action diy-step-dial-back" onClick={onBack} type="button">
+        <span>back</span>
+        <strong>{currentStep}</strong>
+        <i aria-hidden="true">{"\u2190"}</i>
       </button>
-      {isOpen ? (
-        <div className="accordion-content" id={contentId}>
-          {children}
-        </div>
-      ) : null}
-    </section>
+
+      <span className="diy-step-dial-divider" aria-hidden="true" />
+
+      <button className="diy-step-dial-action diy-step-dial-next" onClick={onNext} type="button">
+        <i aria-hidden="true">{"\u2192"}</i>
+        <strong>3</strong>
+        <span>next</span>
+      </button>
+    </div>
   );
 }

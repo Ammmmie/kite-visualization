@@ -14,6 +14,11 @@ const axisGroupLabels: Record<WhistleEdgeAxisGroupId, string> = {
   "choose-b": "下方轴组",
   "choose-c": "左右轴组",
   "choose-d": "中心轴组",
+  "choose-e": "轴组 E",
+  "choose-f": "轴组 F",
+  "choose-g": "轴组 G",
+  "choose-h": "轴组 H",
+  "choose-i": "轴组 I",
 };
 
 export function HexagonWhistleHitAreas({

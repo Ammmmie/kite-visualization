@@ -125,6 +125,11 @@ const whistleAxisGroupIds = new Set<WhistleEdgeAxisGroupId>([
   "choose-b",
   "choose-c",
   "choose-d",
+  "choose-e",
+  "choose-f",
+  "choose-g",
+  "choose-h",
+  "choose-i",
 ]);
 const whistleFillDensities = new Set<WhistleFillDensity>(["low", "mid", "high"]);
 const whistleSizes = new Set<WhistleSize>(["small", "medium", "large"]);

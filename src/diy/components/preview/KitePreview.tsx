@@ -5,7 +5,7 @@ import {
   usesSingleUnitCenterFallback,
 } from "../../data/surfaceAssets";
 import {
-  getHexagonEdgeChooseAsset,
+  getWhistleEdgeChooseAsset,
   getWhistleFillLayers,
 } from "../../data/whistleAssets";
 import type {
@@ -16,7 +16,7 @@ import type {
   WhistleEdgeAxisGroupId,
 } from "../../types/kite";
 import { SurfaceBaseLayer } from "./SurfaceBaseLayer";
-import { HexagonWhistleHitAreas } from "./HexagonWhistleHitAreas";
+import { WhistleEdgeHitAreas } from "./WhistleEdgeHitAreas";
 
 const SHOW_WHISTLE_HITAREA_DEBUG = false;
 
@@ -50,12 +50,17 @@ export function KitePreview({
     config.selectedWhistleSizes,
   );
   const isEdgeMode = config.whistleLayoutMode === "edge";
-  const canUseHexagonEdge = isEdgeMode && config.kiteShape === "hexagon";
+  const canUseEdgeHitAreas =
+    isEdgeMode &&
+    (config.kiteShape === "hexagon" ||
+      config.kiteShape === "seven-star" ||
+      config.kiteShape === "eight-star" ||
+      config.kiteShape === "nineteen-star");
   const hoveredEdgeAsset = hoveredWhistleAxisGroupId
-    ? getHexagonEdgeChooseAsset(hoveredWhistleAxisGroupId)
+    ? getWhistleEdgeChooseAsset(config.kiteShape, hoveredWhistleAxisGroupId)
     : undefined;
   const shouldShowHoverLayer =
-    canUseHexagonEdge &&
+    canUseEdgeHitAreas &&
     hoveredWhistleAxisGroupId !== null &&
     !config.selectedWhistleAxisGroupIds.includes(hoveredWhistleAxisGroupId) &&
     hoveredEdgeAsset !== undefined;
@@ -103,10 +108,10 @@ export function KitePreview({
             </div>
           ) : null}
 
-          {whistlesEnabled && canUseHexagonEdge ? (
+          {whistlesEnabled && canUseEdgeHitAreas ? (
             <div className="whistle-layer whistle-edge-layer" aria-hidden="true">
               {config.selectedWhistleAxisGroupIds.map((axisGroupId) => {
-                const edgeAsset = getHexagonEdgeChooseAsset(axisGroupId);
+                const edgeAsset = getWhistleEdgeChooseAsset(config.kiteShape, axisGroupId);
 
                 return edgeAsset ? (
                   <img
@@ -127,10 +132,11 @@ export function KitePreview({
             </div>
           ) : null}
 
-          {canUseHexagonEdge ? (
-            <div className="whistle-edge-hit-layer" aria-label="六角星边缘式哨口轴组">
-              <HexagonWhistleHitAreas
+          {canUseEdgeHitAreas ? (
+            <div className="whistle-edge-hit-layer" aria-label="边缘式哨口轴组">
+              <WhistleEdgeHitAreas
                 hoveredAxisGroupId={hoveredWhistleAxisGroupId}
+                kiteShape={config.kiteShape}
                 onHover={onWhistleAxisGroupHover}
                 onToggle={onWhistleAxisGroupToggle}
                 selectedAxisGroupIds={config.selectedWhistleAxisGroupIds}

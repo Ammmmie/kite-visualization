@@ -5,15 +5,46 @@
   const container = document.querySelector(".scroll-container");
   const fog = document.getElementById("fog");
   const warm = document.getElementById("warm");
+  const vignette = document.querySelector(".vignette");
   const bar = document.getElementById("bar");
   const seaLabel = document.getElementById("seaLabel");
+  const heroUi = document.getElementById("heroUi");
+  const uiGroup1 = document.getElementById("uiGroup1");
+  const uiIcon = document.getElementById("uiIcon");
+  const uiGroup2 = document.getElementById("uiGroup2");
+  const uiPoem = document.getElementById("uiPoem");
+  const uiPlay = document.getElementById("uiPlay");
   const skyTitle = document.getElementById("skyTitle");
+  const cloudText1 = document.getElementById("cloudText1");
+  const cloudText2 = document.getElementById("cloudText2");
+  const farmText3 = document.getElementById("farmText3");
+  const farmText4 = document.getElementById("farmText4");
   const seaCanvas = document.getElementById("seaCanvas");
   const farmScroll = document.getElementById("farmScroll");
   const farmStage = document.getElementById("farmStage");
   const farmBg = document.getElementById("farmBg");
   const farmFront = document.getElementById("farmFront");
   const farmHaze = document.getElementById("farmHaze");
+  const zoomScroll = document.getElementById("zoomScroll");
+  const zoomStage = document.getElementById("zoomStage");
+  const zoomFarmBg = document.getElementById("zoomFarmBg");
+  const zoomBlueGrade = document.getElementById("zoomBlueGrade");
+  const kiteCoverScroll = document.getElementById("kiteCoverScroll");
+  const kiteCoverStage = document.getElementById("kiteCoverStage");
+  const kiteCoverSky = document.querySelector(".kite-cover-sky");
+  const kiteCoverFarm = document.getElementById("kiteCoverFarm");
+  const kiteCoverText = document.getElementById("kiteCoverText");
+  const kiteCover = document.getElementById("kiteCover");
+  const skyKite1 = document.getElementById("skyKite1");
+  const skyKite3 = document.getElementById("skyKite3");
+  const beachScroll = document.getElementById("beachScroll");
+  const beachStage = document.getElementById("beachStage");
+  const beachBg = document.getElementById("beachBg");
+  const beachFront = document.getElementById("beachFront");
+  const beachText = document.getElementById("beachText");
+  const beachTextTitle = document.getElementById("beachTextTitle");
+  const beachTextBless = document.getElementById("beachTextBless");
+  const beachNext = document.getElementById("beachNext");
   const kite = document.getElementById("kite");
   const loader = document.getElementById("loader");
   const loaderFill = document.getElementById("loaderFill");
@@ -51,6 +82,8 @@
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const lerp = (start, end, progress) => start + (end - start) * progress;
+  const mixColor = (from, to, progress) =>
+    `rgb(${from.map((value, index) => Math.round(lerp(value, to[index], progress))).join(", ")})`;
   const easeInOut = (progress) =>
     progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
   // 减速缓动：起步快、收尾慢，适合飘入/升起的柔和落定感
@@ -78,53 +111,52 @@
     r: lerp(a.r, b.r, t),
   });
 
-  // 风筝动线：第一屏由 raw 驱动（海面升空→钻云淡出），
-  // 第二屏由 farmRaw 驱动（镜像从右侧云里飞出→定格左上→飞向农庄天空）。
+  // 风筝动线（hero 第一屏，含海面+云层两段）：
+  // 海面段末尾从右上方出现 → 伴随云聚拢向左飞 → 聚拢完成定格在画面左边。
+  // 定格后保持可见，由第二屏 getFarmKite 接手向下飞入农庄（全程不淡出）。
   // x/y 为相对视口的 translate 偏移（vw/vh），flip 表示是否水平镜像。
   function getHeroKite(raw) {
-    // 第一屏：先向右飞（末段隐入云层淡出）→ 折返 → 向左飞（从云层飞出淡入）
-    const start = { x: 18, y: 36, s: 0.92, r: -6 };  // 起始位置：x 越大越右、y 越大越下
-    const right = { x: 56, y: 30, s: 1.04, r: 14 };   // 先飞到右侧
-    const left = { x: 14, y: 18, s: 1.0, r: -10 };    // 再飞回左侧偏上
+    // enter：海面段末尾从右上方偏右出现；settled：云聚拢完成后定格画面左边
+    const enter = { x: 68, y: 16, s: 0.94, r: -8 };    // 右上方偏右
+    const settled = { x: 12, y: 26, s: 1.04, r: 6 };   // 左边定格位
     let state;
 
-    if (raw < 0.32) {
-      state = point(start, right, segEaseBy("out", raw, 0, 0.32));
+    // 海面段末尾(0.16)开始动，向左飞放得很慢，几乎贯穿整个第一屏到接近末尾(0.92)
+    // 用 inout 缓动：两头慢、中间匀，整体更平缓不突兀
+    if (raw < 0.92) {
+      state = point(enter, settled, segEaseBy("inout", raw, 0.16, 0.92));
     } else {
-      state = point(right, left, segEaseBy("inout", raw, 0.32, 0.7));
-    }
-    // 在右→左折返点（raw≈0.32）隐入云层：0.24→0.32 淡出，0.32→0.42 飞出淡入
-    let opacity;
-    if (raw < 0.32) {
-      opacity = 1 - segEase(raw, 0.24, 0.32);
-    } else {
-      opacity = segEase(raw, 0.32, 0.42);
+      // 接近末尾定格画面左边，停住等散开转场接手
+      state = settled;
     }
 
-    state.r += Math.sin(raw * Math.PI * 8) * 1.2;
-    return { ...state, opacity: q(opacity), flip: false };
+    // 0.16→0.28 淡入；之后全程保持可见（不淡出，连贯到农庄转场）
+    const opacity = segEase(raw, 0.16, 0.28);
+
+    state.r += Math.sin(raw * Math.PI * 6) * 1.0;
+    return { ...state, opacity: q(opacity), flip: true };
   }
 
+  // 风筝动线（第二屏农庄转场）：接续第一屏左边定格位，
+  // 伴随云层散开飞到农庄天空偏右上定格。全程保持可见，不淡入淡出。
+  // x/y 为相对视口的 translate 偏移（vw/vh），flip 表示是否水平镜像。
   function getFarmKite(farmRaw) {
-    // 第二屏：接续第一屏，从云层淡出飞出 → 飞到农庄天空定格
-    // 定格后与农庄天空保持相对静止（位移在更新处叠加农庄实际偏移）
-    const emerge = { x: 14, y: 20, s: 0.95, r: -8 };   // 从云层飞出，左侧偏上
-    const settled = { x: 32, y: 14, s: 1.02, r: 4 };   // 农庄天空定格位
+    // 起点 = 第一屏 getHeroKite 的左边定格位，保证跨屏连贯不跳变
+    const emerge = { x: 12, y: 26, s: 1.04, r: 6 };    // 接第一屏左边定格位
+    const settled = { x: 34, y: 18, s: 1.04, r: -4 };  // 农庄天空定格位（偏右上，落在天空不进田地）
     let state;
-    let opacity;
 
-    if (farmRaw < 0.62) {
-      // 连贯飞向农庄天空定格点
-      state = point(emerge, settled, segEaseBy("out", farmRaw, 0, 0.62));
-      opacity = 1;
+    if (farmRaw < 0.6) {
+      // 伴随云散开向下飞入农庄
+      state = point(emerge, settled, segEaseBy("out", farmRaw, 0, 0.6));
     } else {
-      // 飞到农庄天空后定格停住，不再离场
+      // 飞入农庄后定格停住，不再离场
       state = settled;
-      opacity = 1;
     }
 
-    state.r += Math.sin(farmRaw * Math.PI * 6) * 1.0;
-    return { ...state, opacity: q(opacity), flip: false };
+    state.r += Math.sin(farmRaw * Math.PI * 5) * 0.9;
+    // 转场全程可见，opacity 恒为 1
+    return { ...state, opacity: 1, flip: true };
   }
 
   function getCloudScatter(el, raw) {
@@ -330,8 +362,19 @@
     }
   }
 
+  // ===================== 三个风筝的可调参数 =====================
+  // zoom-kite（主风筝）：落点偏移(vw/vh) + 缩小后定格尺寸 + 轻晃幅度
+  // sky-kite-1 / sky-kite-3：left/top 百分比 + 宽度(px) + 轻晃幅度
+  const kiteConfig = {
+    zoom: { x: -12.5, y: 40, scale: 0.76, rot: -28.5, swayX: 0.9, swayY: 0.6, swayR: 1.2 },
+    sky1: { left: 23.5, top: 0, width: 1200, swayX: 0.5, swayY: 0.5, swayR: 0 },
+    sky3: { left: 62.5, top: 9, width: 727, swayX: 0.2, swayY: 2.3, swayR: 2.4 },
+  };
+
   // ===================== 滚动视差主循环 =====================
   let raf = null;
+  // 风筝落定后需持续轻晃：即使没有滚动也要保持帧循环
+  let swayActive = false;
 
   function tick() {
     raf = null;
@@ -344,6 +387,13 @@
     const total = Math.max(1, rect.height - window.innerHeight);
     const raw = clamp(-rect.top / total, 0, 1);
     const progress = easeInOut(raw);
+    let fieldTransitionBg = 0;
+    let currentZoomRaw = 0;
+    if (zoomScroll) {
+      const zoomRect = zoomScroll.getBoundingClientRect();
+      const zoomTotal = Math.max(1, zoomRect.height - window.innerHeight);
+      currentZoomRaw = clamp(-zoomRect.top / zoomTotal, 0, 1);
+    }
 
     for (const layer of layers) {
       const layerProgress = layer.hasOBlend
@@ -385,9 +435,37 @@
       fogOpacity = Math.sin(t * Math.PI) * 0.85;
     }
 
-    fog.style.opacity = q(fogOpacity);
-    warm.style.opacity = q(segEase(raw, 0.5, 0.9) * 0.9);
-    seaLabel.style.opacity = q(clamp(1 - raw * 5, 0, 1));
+    const heroEffectFade = 1 - segEase(raw, 0.76, 0.94);
+    fog.style.opacity = q(fogOpacity * heroEffectFade);
+    warm.style.opacity = q(segEase(raw, 0.5, 0.86) * 0.72 * heroEffectFade);
+    if (vignette) vignette.style.opacity = q(heroEffectFade);
+    // 整组开场 UI 随海面淡出（提前淡出，0.05→0.35）
+    if (heroUi) heroUi.style.opacity = q(1 - segEase(raw, 0.05, 0.35));
+
+    // 云层屏浮现文字：随云聚拢依次淡入(0.46起)，随云散开统一淡出(0.80→0.92)
+    // 与终幕 skyTitle(0.8→1) 错开：散开期文字退场、标题接力，不撞车
+    if (cloudText1 || cloudText2) {
+      const cloudOut = 1 - segEase(raw, 0.80, 0.92); // 随散开淡出
+      // 文字1 先（淡入 0.46→0.56）
+      const c1In = segEaseBy("out", raw, 0.46, 0.56);
+      const c1 = c1In * cloudOut;
+      // 文字2 后（淡入 0.56→0.66）
+      const c2In = segEaseBy("out", raw, 0.56, 0.66);
+      const c2 = c2In * cloudOut;
+      if (cloudText1) {
+        cloudText1.style.opacity = q(c1);
+        // 淡入时上移落定 +14→0，淡出时上飘 0→-12
+        const rise1 = (1 - c1In) * 14 - (1 - cloudOut) * 12;
+        cloudText1.style.transform = `translateY(${q(rise1)}px)`;
+        cloudText1.style.willChange = c1 > 0.01 ? "opacity, transform" : "auto";
+      }
+      if (cloudText2) {
+        cloudText2.style.opacity = q(c2);
+        const rise2 = (1 - c2In) * 14 - (1 - cloudOut) * 12;
+        cloudText2.style.transform = `translateY(${q(rise2)}px)`;
+        cloudText2.style.willChange = c2 > 0.01 ? "opacity, transform" : "auto";
+      }
+    }
 
     const titleProgress = segEase(raw, 0.8, 1);
     skyTitle.style.opacity = q(titleProgress);
@@ -410,15 +488,16 @@
       stopSea();
     }
 
-    // ---- 风筝跨屏动线 ----
+    // ---- 风筝动线（第一屏云层聚拢时出现 → 第二屏农庄定格） ----
     if (kite) {
-      let fk;
+      let fk = null;
       let followY = 0;
+      let kiteFade = 1; // farm 推进失焦开始时风筝淡出
       if (farmScroll) {
         const fr = farmScroll.getBoundingClientRect();
         const ft = Math.max(1, fr.height - window.innerHeight);
         const farmRawForKite = clamp(-fr.top / ft, 0, 1);
-        // 第二屏推进到一定程度才接管，让第一屏淡出先走完，避免横向跳变
+        // 第二屏推进到一定程度才接管，否则仍由第一屏 raw 驱动
         if (farmRawForKite > 0.02) {
           fk = getFarmKite(farmRawForKite);
           // 与农庄天空相对静止：农庄 stage sticky 钉住时不动，
@@ -428,6 +507,8 @@
             // stage 顶部离开视口顶部的距离（vh），钉住时≈0，上滚时为负
             followY = (sr.top / window.innerHeight) * 100;
           }
+          // 镜头开始推进草地(farmRaw≈0.5)、画面将要失焦前，风筝淡出消失
+          kiteFade = 1 - segEase(farmRawForKite, 0.5, 0.62);
         } else {
           fk = getHeroKite(raw);
         }
@@ -437,11 +518,11 @@
       const flip = fk.flip ? " scaleX(-1)" : "";
       kite.style.transform =
         `translate3d(${fk.x}vw, ${fk.y + followY}vh, 0) rotate(${fk.r}deg) scale(${fk.s})${flip}`;
-      kite.style.opacity = fk.opacity;
+      kite.style.opacity = q(fk.opacity * kiteFade);
       // 完全透明、或随农庄上移到视口外时彻底移除渲染，杜绝悬浮在后续内容上
       const offTop = fk.y + followY < -30;
-      kite.style.display = fk.opacity <= 0.01 || offTop ? "none" : "block";
-      kite.style.willChange = fk.opacity > 0.01 ? "transform, opacity" : "auto";
+      kite.style.display = fk.opacity * kiteFade <= 0.01 || offTop ? "none" : "block";
+      kite.style.willChange = fk.opacity * kiteFade > 0.01 ? "transform, opacity" : "auto";
     }
 
     if (farmScroll && farmStage && farmBg && farmFront && farmHaze) {
@@ -454,24 +535,228 @@
       const farmReveal = segEaseBy("out", farmRaw, 0.12, 0.42);
       const bgScale = lerp(1.12, 1, farmProgress);
       const bgY = lerp(3, -2, farmProgress);
-      const frontY = lerp(52, -34, farmProgress);
-      const frontScale = lerp(1.01, 1.08, farmProgress);
-      farmStage.style.opacity = q(farmReveal);
+
+      // 末段镜头推进草地：farmFront 加速放大怼进画面（前 70% 平缓上移，后段急推放大）
+      const push = segEaseBy("in", farmRaw, 0.55, 1); // 0→1，后段才发力
+      // 主要靠放大铺满，上移幅度收小，避免图片顶边离开画面露出底色分界线
+      const frontY = lerp(52, -34, farmProgress) - push * 60;
+      const frontScale = lerp(1.01, 1.08, farmProgress) + push * 2.2; // 末尾约 scale 3.3，铺满整屏
+      // 末段失焦：与放大解耦，单独用更晚的起点(0.7)和 inout 缓动，让模糊上得更慢更平。
+      // 放大(push)照旧推进画面，只是虚化推迟发力，避免“一放大就糊”的突兀感。
+      const blurProgress = segEaseBy("inout", farmRaw, 0.7, 1);
+      const farmBlur = blurProgress * 13; // 末尾约 13px 模糊（略降峰值）
+      // 末段淡出：不再让 farmStage 在自身末段就淡到 0，否则在 zoom 段还没盖满的
+      // 空窗期会露出 body 的浅绿过渡底色（那块突兀的浅绿大方块）。
+      // farmStage(z30) 在 zoomStage(z31) 之下，只要它不透明就会被随后淡入的 zoom
+      // 完全盖住，因此把淡出改为“跟随 zoom 淡入进度反向撤场”——zoom 盖到哪、farm 撤到哪，
+      // 全程没有两层都不在的空窗，底色不会再露出来。
+      const zoomCoverForFarm = segEaseBy("out", currentZoomRaw, 0.04, 0.34);
+      const farmFade = 1 - zoomCoverForFarm;
+      fieldTransitionBg = Math.max(
+        fieldTransitionBg,
+        segEaseBy("out", farmRaw, 0.78, 0.94) * (1 - segEase(currentZoomRaw, 0.38, 0.72))
+      );
+
+      farmStage.style.opacity = q(farmReveal * farmFade);
       farmBg.style.transform = `translate3d(0, ${bgY}vh, 0) scale(${bgScale})`;
       farmFront.style.transform = `translate3d(0, ${frontY}px, 0) scale(${frontScale})`;
+      farmFront.style.filter = farmBlur > 0.2 ? `blur(${farmBlur}px)` : "none";
       // farm-haze 这层晨雾的矩形渐变边界会造成可见浅色遮罩，CSS 和 JS 双保险关闭。
       farmHaze.style.opacity = 0;
+
+      // farmStage 浮现文字：依次淡入(文字3先、文字4后)，随镜头下滑推进(push)统一淡出
+      // 注意：farmText 是 farmStage 子元素，stage 自身 opacity 会叠加，故文字淡入放在 stage 基本可见后
+      if (farmText3 || farmText4) {
+        const fOut = 1 - segEaseBy("out", farmRaw, 0.50, 0.62); // 赶在 push 推走画面前退场
+        const f3In = segEaseBy("out", farmRaw, 0.30, 0.42);     // 文字3 先
+        const f4In = segEaseBy("out", farmRaw, 0.42, 0.54);     // 文字4 后（依次）
+        const f3 = f3In * fOut;
+        const f4 = f4In * fOut;
+        if (farmText3) {
+          farmText3.style.opacity = q(f3);
+          // 淡入上移落定 +14→0；淡出随镜头上推向上飘 0→-16
+          const r3 = (1 - f3In) * 14 - (1 - fOut) * 16;
+          farmText3.style.transform = `translateY(${q(r3)}px)`;
+          farmText3.style.willChange = f3 > 0.01 ? "opacity, transform" : "auto";
+        }
+        if (farmText4) {
+          farmText4.style.opacity = q(f4);
+          const r4 = (1 - f4In) * 14 - (1 - fOut) * 16;
+          farmText4.style.transform = `translateY(${q(r4)}px)`;
+          farmText4.style.willChange = f4 > 0.01 ? "opacity, transform" : "auto";
+        }
+      }
 
       if (returningFromMain && !allowMainTransition && scrollingUp && farmRaw < 0.96) {
         allowMainTransition = true;
       }
+    }
 
-      if (allowMainTransition && scrollingDown && farmRaw >= 0.985) {
-        goToMainSite();
+    if (zoomScroll && zoomStage && zoomFarmBg && zoomBlueGrade) {
+      const zoomRaw = currentZoomRaw;
+      // 淡入再拉长一点，与 farm 末段失焦淡出（0.82→1）有更宽的重叠交叉区，
+      // 让两屏靠透明度叠化自然衔接，不再依赖任何色彩遮罩。
+      const zoomIn = segEaseBy("out", zoomRaw, 0, 0.24);
+      const zoomOut = 1 - segEase(zoomRaw, 0.96, 1);
+      fieldTransitionBg = Math.max(fieldTransitionBg, segEaseBy("out", zoomRaw, 0, 0.1) * (1 - segEase(zoomRaw, 0.38, 0.72)));
+
+      // 对焦切换：稻田开场起始虚化值（22px/scale1.28）对齐 farm 末段推进的失焦量，
+      // 使得 farmFront 淡出与 zoom 淡入在同一“模糊度”上交接，看不出切换的硬边。
+      // 随推进 blur 退去、scale 回落到 1，画面“对上焦”变清晰。
+      const focus = segEaseBy("out", zoomRaw, 0, 0.4); // 对焦放慢，收尾更柔
+      const zoomBlur = lerp(22, 0, focus);
+      const zoomScale = lerp(1.28, 1, focus);
+
+      zoomStage.style.opacity = q(zoomIn * zoomOut);
+      zoomFarmBg.style.transform = `scale(${zoomScale})`;
+      zoomFarmBg.style.filter = zoomBlur > 0.2 ? `blur(${zoomBlur}px)` : "none";
+      // 绿色遮罩彻底移除：恒为 0，纯靠交叉淡入淡出 + 失焦承接衔接两屏。
+      zoomBlueGrade.style.opacity = 0;
+      zoomFarmBg.style.willChange = zoomRaw > 0 && zoomRaw < 1 ? "transform, filter" : "auto";
+      zoomBlueGrade.style.willChange = "auto";
+    }
+
+    if (kiteCoverScroll && kiteCoverStage && kiteCover) {
+      const coverRect = kiteCoverScroll.getBoundingClientRect();
+      const coverTotal = Math.max(1, coverRect.height - window.innerHeight);
+      const coverRaw = clamp(-coverRect.top / coverTotal, 0, 1);
+      fieldTransitionBg = Math.max(fieldTransitionBg, segEaseBy("out", coverRaw, 0, 0.04) * (1 - segEase(coverRaw, 0.72, 0.92)));
+
+      // ===== 四阶段时序 =====
+      // 阶段1 (0→0.30)   ：大风筝局部从很模糊(22px)缓缓浮现，清晰度升到 ~80% 后停下
+      // 阶段2 (0.30→0.42)：画面保持，介绍文字从右下淡入
+      // 阶段3 (0.42→0.62)：全部静止，留时间阅读
+      // 阶段4 (0.62→0.90)：风筝缩小(保持清晰)；草地淡出、天空淡入(交叉叠化)；文字同步淡出
+      // 阶段5 (0.90→1)   ：风筝定格在天空
+
+      const coverIn = segEaseBy("out", coverRaw, 0, 0.04);
+
+      // 阶段1：浮现 + 对焦到 80%。整体淡入透明度（纹理浮现感）
+      const kiteAppear = segEaseBy("out", coverRaw, 0, 0.22);
+      // 清晰度只对到 80%：blur 从 6px 降到 ~1px（保留极轻柔感）就停下
+      const focusTo80 = segEaseBy("out", coverRaw, 0.04, 0.30);
+      const blur80 = lerp(6, 1, focusTo80);
+
+      // 阶段4：缩小（保持清晰，blur 在缩小段进一步收到 0）
+      const shrinkProgress = segEaseBy("inout", coverRaw, 0.62, 0.90);
+      const zc = kiteConfig.zoom;
+      const coverScale = coverRaw < 0.62 ? 21 : lerp(21, zc.scale, shrinkProgress);
+      // 落点偏移由 config 驱动（面板可调）
+      const coverX = lerp(0, zc.x, shrinkProgress);
+      const coverYBase = lerp(0, zc.y, shrinkProgress);
+      const coverRotate = lerp(0, zc.rot, shrinkProgress);
+      // 缩小时把残留模糊也收干净，定格时完全清晰
+      const blur = coverRaw < 0.62 ? blur80 : lerp(1, 0, shrinkProgress);
+
+      // 落定后轻轻晃动：缩小基本完成后启用，幅度随落定淡入；时间相位驱动
+      const settleAmt = segEaseBy("out", coverRaw, 0.86, 0.94);
+      const t = performance.now() / 1000;
+      const zSwayX = Math.sin(t * 0.9) * zc.swayX * settleAmt;
+      const coverY = coverYBase + Math.sin(t * 0.7 + 1.1) * zc.swayY * settleAmt;
+      const zSwayRot = Math.sin(t * 0.8 + 0.5) * zc.swayR * settleAmt;
+
+      // 草地淡出 / 天空淡入：交叉叠化，与风筝缩小同段发生
+      const skyReveal = segEaseBy("out", coverRaw, 0.64, 0.86);
+      const farmFadeOut = 1 - skyReveal;
+
+      // 文字：阶段2 淡入(0.30→0.42)，阶段4 缩小开始时淡出(0.62→0.74)
+      const textIn = segEaseBy("out", coverRaw, 0.30, 0.42);
+      const textOut = 1 - segEaseBy("out", coverRaw, 0.62, 0.74);
+      const textOpacity = textIn * textOut;
+      // 文字淡入时轻微上浮落定，淡出时轻微上飘消散
+      const textRise = (1 - textIn) * 12 - (1 - textOut) * 10;
+
+      // 两个天空小风筝：与天空同步淡入(skyReveal)，落定后各自随风轻晃
+      const skyKiteFade = skyReveal;
+      const applySkyKite = (el, cfg, seed) => {
+        if (!el) return;
+        const sx = Math.sin(t * 0.85 + seed) * cfg.swayX * settleAmt;
+        const sy = Math.sin(t * 0.65 + seed * 1.3) * cfg.swayY * settleAmt;
+        const sr = Math.sin(t * 0.75 + seed * 0.7) * cfg.swayR * settleAmt;
+        el.style.left = `${cfg.left}%`;
+        el.style.top = `${cfg.top}%`;
+        el.style.width = `${cfg.width}px`;
+        el.style.opacity = q(skyKiteFade);
+        el.style.transform = `translate3d(${q(sx)}vw, ${q(sy)}vh, 0) rotate(${q(sr)}deg)`;
+        el.style.willChange = skyKiteFade > 0.01 ? "transform, opacity" : "auto";
+      };
+
+      kiteCoverStage.style.opacity = q(coverIn);
+      if (kiteCoverFarm) kiteCoverFarm.style.opacity = q(farmFadeOut);
+      if (kiteCoverSky) kiteCoverSky.style.opacity = q(skyReveal);
+      kiteCover.style.opacity = q(kiteAppear);
+      kiteCover.style.filter = `blur(${q(blur)}px) drop-shadow(0 24px 44px rgba(36, 96, 130, 0.18))`;
+      kiteCover.style.transform = `translate3d(${q(coverX + zSwayX)}vw, ${q(coverY)}vh, 0) rotate(${q(coverRotate + zSwayRot)}deg) scale(${coverScale})`;
+      kiteCover.style.willChange = coverRaw > 0 && coverRaw < 1 ? "transform, opacity, filter" : "auto";
+      applySkyKite(skyKite1, kiteConfig.sky1, 0.0);
+      applySkyKite(skyKite3, kiteConfig.sky3, 2.1);
+      if (kiteCoverText) {
+        kiteCoverText.style.opacity = q(textOpacity);
+        kiteCoverText.style.transform = `translateY(${q(textRise)}px)`;
+        kiteCoverText.style.willChange = textOpacity > 0.01 ? "opacity, transform" : "auto";
+      }
+      if (kiteCoverFarm) kiteCoverFarm.style.willChange = farmFadeOut > 0.01 && farmFadeOut < 0.99 ? "opacity" : "auto";
+
+      // 风筝落定且仍可见时保持轻晃帧循环（无滚动也不冻结）
+      swayActive = settleAmt > 0.01 && coverRaw < 0.999 && q(kiteAppear) > 0.01;
+    } else {
+      swayActive = false;
+    }
+
+    // body 兜底色：farm/zoom 段正常情况下全程有图层覆盖、不会露出 body。
+    // 这里仅作极端帧的兜底，目标色取接近 stage 草地底色（#a9c08a），
+    // 即便偶有一帧缝隙也是连续草地色，不会再出现偏白的浅绿方块。
+    document.body.style.backgroundColor = mixColor([212, 221, 229], [169, 192, 138], fieldTransitionBg);
+
+    if (beachScroll && beachStage && beachBg && beachFront) {
+      const beachRect = beachScroll.getBoundingClientRect();
+      const beachTotal = Math.max(1, beachRect.height - window.innerHeight);
+      const beachRaw = clamp(-beachRect.top / beachTotal, 0, 1);
+
+      // beach-bg 与 beach-front 是设计好上下拼接的完整静态构图（天空+海+沙滩），
+      // 任何缩放/位移都会让拼缝错位、构图变乱，所以这里完全不做 transform，
+      // 只用 stage 透明度淡入接入。转场的“干净衔接”靠 CSS 的 margin/重叠控制。
+      const beachIn = segEaseBy("out", beachRaw, 0.04, 0.24);
+
+      // 文字：标题(0.40→0.54) 先，祈福(0.56→0.72) 后，依次浮现并轻微上浮落定。
+      // 放在中前段，让用户停在定格画面时文字已就位，后段留白供阅读。
+      const titleIn = segEaseBy("out", beachRaw, 0.40, 0.54);
+      const blessIn = segEaseBy("out", beachRaw, 0.56, 0.72);
+
+      beachStage.style.opacity = q(beachIn);
+      // 不缩放不位移：保持图片原始拼接构图
+      beachBg.style.transform = "none";
+      beachFront.style.transform = "none";
+      beachBg.style.willChange = "auto";
+      beachFront.style.willChange = "auto";
+
+      if (beachTextTitle) {
+        beachTextTitle.style.opacity = q(titleIn);
+        beachTextTitle.style.transform = `translateX(-50%) translateY(${q((1 - titleIn) * 16)}px)`;
+        beachTextTitle.style.willChange = titleIn > 0.01 && titleIn < 0.99 ? "opacity, transform" : "auto";
+      }
+      if (beachTextBless) {
+        beachTextBless.style.opacity = q(blessIn);
+        beachTextBless.style.transform = `translateX(-50%) translateY(${q((1 - blessIn) * 16)}px)`;
+        beachTextBless.style.willChange = blessIn > 0.01 && blessIn < 0.99 ? "opacity, transform" : "auto";
+      }
+      if (beachNext) {
+        const buttonIn = segEaseBy("out", beachRaw, 0.78, 0.94);
+        beachNext.classList.toggle("is-visible", buttonIn > 0.02);
+        beachNext.style.opacity = q(buttonIn);
+      }
+
+      if (returningFromMain && !allowMainTransition && scrollingUp && beachRaw < 0.96) {
+        allowMainTransition = true;
       }
     }
 
     lastScrollY = currentScrollY;
+
+    // 风筝落定轻晃期间，即使无滚动也持续请求下一帧，保证轻摆不冻结
+    if (swayActive && raf === null) {
+      raf = requestAnimationFrame(tick);
+    }
   }
 
   function schedule() {
@@ -499,13 +784,61 @@
     skyTitle.style.opacity = 1;
     skyTitle.style.transform = "none";
     skyTitle.classList.add("active");
-    seaLabel.style.opacity = 0;
-    // 减少动态效果：风筝静止显示在第一屏定格位
+    // 减少动态效果：开场 UI 直接显示，不做依次进场动画
+    [uiGroup1, uiIcon, uiGroup2, uiPoem, uiPlay, seaLabel].forEach((el) => el && el.classList.add("in"));
+    // 减少动态效果：云层屏为终幕标题态，两段聚拢文字隐藏；farm 两段说明文字静态显示
+    [cloudText1, cloudText2].forEach((el) => { if (el) el.style.opacity = 0; });
+    [farmText3, farmText4].forEach((el) => {
+      if (!el) return;
+      el.style.opacity = 1;
+      el.style.transform = "none";
+    });
+    // 减少动态效果：风筝静止显示在农庄天空定格位
     if (kite) {
-      const k = getHeroKite(0.3);
-      kite.style.transform = `translate(${k.x}vw, ${k.y}vh) rotate(0deg) scale(${k.s})`;
+      const k = getFarmKite(0.8);
+      kite.style.transform = `translate(${k.x}vw, ${k.y}vh) rotate(0deg) scale(${k.s}) scaleX(-1)`;
       kite.style.opacity = 1;
     }
+    if (farmStage) farmStage.style.opacity = 1;
+    if (zoomStage) zoomStage.style.opacity = 1;
+    if (zoomFarmBg) {
+      zoomFarmBg.style.transform = "scale(1)";
+      zoomFarmBg.style.filter = "none";
+    }
+    if (zoomBlueGrade) zoomBlueGrade.style.opacity = 0;
+    if (kiteCoverStage) kiteCoverStage.style.opacity = 1;
+    if (kiteCoverFarm) kiteCoverFarm.style.opacity = 0;
+    if (kiteCoverSky) kiteCoverSky.style.opacity = 1;
+    if (kiteCover) kiteCover.style.transform = "scale(0.72)";
+    if (kiteCover) kiteCover.style.filter = "none";
+    // 减少动态效果：两个天空小风筝静态显示在配置位置，不晃动
+    [
+      [skyKite1, kiteConfig.sky1],
+      [skyKite3, kiteConfig.sky3],
+    ].forEach(([el, cfg]) => {
+      if (!el) return;
+      el.style.left = `${cfg.left}%`;
+      el.style.top = `${cfg.top}%`;
+      el.style.width = `${cfg.width}px`;
+      el.style.opacity = 1;
+      el.style.transform = "none";
+    });
+    if (kiteCoverText) {
+      kiteCoverText.style.opacity = 1;
+      kiteCoverText.style.transform = "none";
+    }
+    if (beachStage) beachStage.style.opacity = 1;
+    if (beachBg) beachBg.style.transform = "none";
+    if (beachFront) beachFront.style.transform = "none";
+    if (beachTextTitle) {
+      beachTextTitle.style.opacity = 1;
+      beachTextTitle.style.transform = "translateX(-50%)";
+    }
+    if (beachTextBless) {
+      beachTextBless.style.opacity = 1;
+      beachTextBless.style.transform = "translateX(-50%)";
+    }
+    if (beachNext) beachNext.classList.add("is-visible");
     // 尊重"减少动态效果"：画一帧静止海面，不启动循环
     if (Sea) {
       const drawOnce = () => Sea.draw(1);
@@ -519,11 +852,111 @@
     setTimeout(() => loader.remove(), 1000);
   }
 
+  if (beachNext) {
+    beachNext.addEventListener("click", () => {
+      if (!allowMainTransition && returningFromMain) return;
+      goToMainSite();
+    });
+  }
+
+  // 开场 UI 依次进场：组1（标题+ICON）先，组2（Kitesong+诗文）次之，play/scroll 最后
+  function playIntro() {
+    const seq = [
+      [uiGroup1, 200],
+      [uiIcon, 350],
+      [uiGroup2, 900],
+      [uiPoem, 1050],
+      [uiPlay, 1500],
+      [seaLabel, 1500],
+    ];
+    for (const [el, delay] of seq) {
+      if (el) setTimeout(() => el.classList.add("in"), delay);
+    }
+  }
+
+  // ===================== play 按钮：点击展开 + 波形流动 =====================
+  (function setupPlayButton() {
+    if (!uiPlay) return;
+    const wave = document.getElementById("uiPlayWave");
+    let open = false;
+    let waveRaf = null;
+    let phase = 0;
+
+    function drawWave() {
+      if (!wave) return;
+      const ctx = wave.getContext("2d");
+      // 适配 DPR，避免模糊
+      const dpr = window.devicePixelRatio || 1;
+      const cssW = wave.clientWidth || 70;
+      const cssH = wave.clientHeight || 40;
+      if (wave.width !== Math.round(cssW * dpr) || wave.height !== Math.round(cssH * dpr)) {
+        wave.width = Math.round(cssW * dpr);
+        wave.height = Math.round(cssH * dpr);
+      }
+      const w = wave.width;
+      const h = wave.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.lineWidth = Math.max(1, dpr);
+      ctx.strokeStyle = "#000";
+      ctx.lineCap = "round";
+
+      const mid = h / 2;
+      // 两端低、中间高的包络，让波形像声音一样自然收尾
+      ctx.beginPath();
+      const step = Math.max(1, Math.floor(dpr));
+      for (let x = 0; x <= w; x += step) {
+        const t = x / w;
+        const envelope = Math.sin(t * Math.PI); // 0→1→0
+        const y =
+          mid +
+          Math.sin(t * Math.PI * 6 - phase) * (h * 0.32) * envelope +
+          Math.sin(t * Math.PI * 11 - phase * 1.7) * (h * 0.12) * envelope;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    function loop() {
+      phase += 0.12;
+      drawWave();
+      waveRaf = requestAnimationFrame(loop);
+    }
+
+    function startWave() {
+      if (waveRaf === null) loop();
+    }
+
+    function stopWave() {
+      if (waveRaf !== null) {
+        cancelAnimationFrame(waveRaf);
+        waveRaf = null;
+      }
+    }
+
+    uiPlay.addEventListener("click", () => {
+      open = !open;
+      uiPlay.classList.toggle("open", open);
+      uiPlay.setAttribute("aria-pressed", String(open));
+      if (open) {
+        // 等展开宽度过渡基本完成再启动绘制，拿到正确的 canvas 宽度
+        setTimeout(startWave, 120);
+      } else {
+        stopWave();
+        if (wave) {
+          const ctx = wave.getContext("2d");
+          ctx && ctx.clearRect(0, 0, wave.width, wave.height);
+        }
+      }
+    });
+  })();
+
   let started = false;
   function begin() {
     if (started) return;
     started = true;
     hideLoader();
+    playIntro();
   }
 
   (function preload() {
@@ -541,7 +974,16 @@
           return img?.getAttribute("src") || null;
         })
         .filter(Boolean),
+      ...[zoomFarmBg, kiteCover, beachBg, beachFront]
+        .map((el) => {
+          const img = el?.querySelector("img");
+          return img?.getAttribute("src") || null;
+        })
+        .filter(Boolean),
       "./assert/kite.png",
+      "./assert/kites-sky-bg.png",
+      "./assert/kite1-sky.png",
+      "./assert/kite3-sky.png",
     ];
 
     if (urls.length === 0) {

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=42dot+Sans:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
@@ -148,10 +148,71 @@
         <div class="warm-grade" id="warm"></div>
         <div class="vignette"></div>
 
-        <div class="ui">
+        <div class="ui" id="heroUi">
+          <!-- 组1：左上角标题 -->
+          <div class="ui-group ui-g1" id="uiGroup1">
+            <div class="ui-title-cn">
+              <span>一只</span>
+              <span>听见天气</span>
+              <span>的鸟</span>
+            </div>
+            <div class="ui-title-en">A bird that hears the weather</div>
+          </div>
+
+          <!-- ICON -->
+          <div class="ui-icon ui-group ui-g1" id="uiIcon">
+            <img class="ui-icon-2" src="https://www.figma.com/api/mcp/asset/c67b4984-0ad3-4751-855d-841336cee716" alt="" />
+            <img class="ui-icon-1" src="https://www.figma.com/api/mcp/asset/a4f09626-de35-4c97-a64c-950e5bba0e8c" alt="" />
+          </div>
+
+          <!-- 组2：Kitesong 标题 -->
+          <div class="ui-group ui-g2" id="uiGroup2">
+            <div class="ui-subtitle-en">Kitesong in the High Wind</div>
+          </div>
+
+          <!-- 诗文 -->
+          <div class="ui-poem ui-group ui-g2" id="uiPoem">
+            <p>天风有信，哨鸣而知雨</p>
+            <p>鹞鸣九皋，其声闻于野</p>
+            <p>南通先民，捕鱼晒盐于海滨</p>
+            <p>借风筝传递</p>
+            <p>鸟图腾的崇拜</p>
+            <p>传递着天气的信息</p>
+          </div>
+
+          <!-- 右上角 play 按钮 -->
+          <button class="ui-play" id="uiPlay" type="button" aria-label="背景音乐">
+            <span class="ui-play-icon" aria-hidden="true">
+              <span class="ui-play-square"></span>
+              <span class="ui-play-diamond"></span>
+            </span>
+            <canvas class="ui-play-wave" id="uiPlayWave" width="140" height="40" aria-hidden="true"></canvas>
+          </button>
+
+          <!-- 底部 Scroll 提示 -->
           <div class="label-sea" id="seaLabel">Scroll</div>
 
           <div class="title-sky" id="skyTitle"></div>
+        </div>
+
+        <!-- 云层屏浮现文字（独立于 heroUi，避免被其整体淡出连带隐藏） -->
+        <!-- 文字1：左上 -->
+        <div class="cloud-text cloud-text-1" id="cloudText1">
+          <p>板鹞风筝起源于中国江南沿海，</p>
+          <p>最早作为祈福、生产辅助和信息传递的生活工具，</p>
+          <p>经过数百年的演变形成独特的多联星造型，</p>
+          <p>并成为南通地区的重要非遗文化。</p>
+        </div>
+        <!-- 文字2：右下 -->
+        <div class="cloud-text cloud-text-2" id="cloudText2">
+          <p>其最具代表性的特征之一，</p>
+          <p>是在骨架中设置哨口结构。</p>
+          <p>风穿过哨口时，</p>
+          <p>会产生不同音色与强弱变化的鸣响，</p>
+          <p>因此也被称为“能发声的风筝”。</p>
+          <p>这种声音并非装饰，</p>
+          <p>而是与风力、风向密切相关，</p>
+          <p>成为古代人感知风况的重要依据。</p>
         </div>
       </div>
     </div>
@@ -165,9 +226,88 @@
         <div class="farm-front" id="farmFront">
           <img src="./assert/farm-front.png" alt="" />
         </div>
+        <!-- farmStage 浮现文字3：左上 -->
+        <div class="farm-text farm-text-3" id="farmText3">
+          <p>晴则晒谷，风稳则耕作，</p>
+          <p>声乱则避雨，于田野之间，</p>
+          <p>风筝之声成为一种“可听的气象”，</p>
+          <p>让农民在无仪器时代仍能顺应天时。</p>
+        </div>
+        <!-- farmStage 浮现文字4：右下 -->
+        <div class="farm-text farm-text-4" id="farmText4">
+          <p>板鹞风筝以“哨鸣观天”</p>
+          <p>风过则声变，风急则音锐，</p>
+          <p>由此感知高空气流与天气将变之势。</p>
+          <p>南通先民据此判断风雨来临、</p>
+          <p>湿度升降与风向转折，</p>
+          <p>从而安排播种、收割与晾晒时机，</p>
+          <p>避免作物受雨霉变或倒伏损失。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="zoom-scroll" id="zoomScroll">
+      <div class="zoom-stage" id="zoomStage">
+        <div class="zoom-farm-bg" id="zoomFarmBg">
+          <img src="./assert/zoom-farm.png" alt="" />
+        </div>
+        <div class="zoom-blue-grade" id="zoomBlueGrade"></div>
+      </div>
+    </section>
+
+    <section class="kite-cover-scroll" id="kiteCoverScroll">
+      <div class="kite-cover-stage" id="kiteCoverStage">
+        <div class="kite-cover-farm" id="kiteCoverFarm"></div>
+        <div class="kite-cover-sky" id="kiteCoverSky"></div>
+        <div class="kite-cover" id="kiteCover">
+          <img src="./assert/zoom-kite.png" alt="" />
+        </div>
+        <!-- 天空里的两个点缀小风筝：落定后才淡入，各自随风轻晃 -->
+        <div class="sky-kite sky-kite-1" id="skyKite1">
+          <img src="./assert/kite1-sky.png" alt="" />
+        </div>
+        <div class="sky-kite sky-kite-3" id="skyKite3">
+          <img src="./assert/kite3-sky.png" alt="" />
+        </div>
+        <div class="kite-cover-text" id="kiteCoverText">
+          <p>南通渔民出海前，常凭哨声辨风浪强弱，</p>
+          <p>哨音尖细多示风急浪高，不宜远航；</p>
+          <p>声沉而稳，则风势可控，利于出海捕鱼。</p>
+          <p>而在晒盐与农作之中，</p>
+          <p>亦可据其判断天气转折。</p>
+          <p>若哨声忽变，常预示风向突变或雨势将至，</p>
+          <p>便及时收盐覆谷，防止海盐受潮、谷物霉损，</p>
+          <p>从而减少风雨对生计的影响。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="beach-scroll" id="beachScroll">
+      <div class="beach-stage" id="beachStage">
+        <div class="beach-bg" id="beachBg">
+          <img src="./assert/beach-bg.png" alt="" />
+        </div>
+        <div class="beach-front" id="beachFront">
+          <img src="./assert/beach-front.png" alt="" />
+        </div>
+        <div class="beach-text" id="beachText">
+          <div class="beach-text-title" id="beachTextTitle">
+            <p>天风有信</p>
+            <p>鹞鸣九皋</p>
+          </div>
+          <div class="beach-text-bless" id="beachTextBless">
+            <p>祈天官赐福，保佑风调雨顺</p>
+            <p>愿天下太平</p>
+            <p>百姓安居立业</p>
+          </div>
+        </div>
+        <button class="beach-next" id="beachNext" type="button" aria-label="进入下一页">
+          <img src="./assert/录屏按键.png" alt="" />
+        </button>
       </div>
     </section>
 
     <script src="./script.js"></script>
   </body>
 </html>
+

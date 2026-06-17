@@ -26,7 +26,7 @@ export const defaultKiteDIYConfig: KiteDIYConfig = {
 
   whistleLayoutMode: "horizontal-staggered",
   whistleFillDensity: "mid",
-  selectedWhistleSizes: ["small", "medium", "large"],
+  selectedWhistleSizes: [],
   selectedWhistleAxisGroupIds: [],
   whistleDensity: 0.5,
   selectedEdges: ["bottom"],
@@ -150,12 +150,8 @@ function normalizeWhistleFillDensity(
 }
 
 function normalizeWhistleSizes(selectedWhistleSizes: WhistleSize[] | undefined): WhistleSize[] {
-  const normalizedSizes = Array.isArray(selectedWhistleSizes)
+  return Array.isArray(selectedWhistleSizes)
     ? selectedWhistleSizes.filter((size) => whistleSizes.has(size))
-    : [];
-
-  return normalizedSizes.length > 0
-    ? normalizedSizes
     : [...defaultKiteDIYConfig.selectedWhistleSizes];
 }
 

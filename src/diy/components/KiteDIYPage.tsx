@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { createDefaultKiteDIYConfig } from "../logic/kiteConfig";
+import { createDefaultKiteDIYConfig, saveKiteConfig } from "../logic/kiteConfig";
 import type {
   EdgeKey,
   KiteDIYConfig,
@@ -177,6 +177,20 @@ export function KiteDIYPage({
     });
   }
 
+  function handleFinish() {
+    const configForStorage = {
+      ...config,
+      centerPatternSelected,
+      cornerPatternSelected,
+      previewEnabled,
+      surfaceEnabled,
+      whistlesEnabled,
+    };
+
+    saveKiteConfig(configForStorage);
+    onFinish?.();
+  }
+
   return (
     <section className={`diy-page ${isStandalone ? "diy-page-standalone" : "diy-page-embedded"}`}>
       <div className="diy-stage">
@@ -247,7 +261,7 @@ export function KiteDIYPage({
             </button>
             <button
               className="diy-action-button diy-finish-button"
-              onClick={onFinish}
+              onClick={handleFinish}
               type="button"
             >
               {"\u5b8c\u6210"}

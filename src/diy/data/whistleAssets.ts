@@ -6,7 +6,9 @@ import type {
 } from "../types/kite";
 
 const kiteShapeFolderName: Partial<Record<KiteShape, string>> = {
+  "eight-star": "八角星",
   hexagon: "六角星",
+  "nineteen-star": "十九连星",
   "seven-star": "七连星",
 };
 

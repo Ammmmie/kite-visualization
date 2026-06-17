@@ -10,6 +10,7 @@ export interface WhistleLayoutOption {
   id: WhistleLayoutMode;
   label: string;
   description: string;
+  iconSrc: string;
 }
 
 export interface EdgeOption {
@@ -41,11 +42,13 @@ export const whistleLayoutOptions: WhistleLayoutOption[] = [
     id: "horizontal-staggered",
     label: "覆盖式",
     description: "按传统规律直接叠加完整哨口图层",
+    iconSrc: "/diy-assets/whistles/覆盖式-icon.png",
   },
   {
     id: "edge",
     label: "边缘式",
     description: "后续按主要横轴、竖轴选择哨口组",
+    iconSrc: "/diy-assets/whistles/边缘式-icon.png",
   },
 ];
 

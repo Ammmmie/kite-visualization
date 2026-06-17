@@ -435,6 +435,261 @@ const whistleRingImg=new Image();
 whistleRingImg.src='./哨口组.png';
 const kiteLineImg=new Image();
 kiteLineImg.src='./风筝线.png';
+
+const DIY_KITE_STORAGE_KEY='banyao-kite-diy-config';
+const DIY_CONFIG_REFRESH_MS=300;
+const diyImageCache=new Map();
+const diyFilledFrameMaskSrcCache=new Map();
+const diyMaskCanvas=document.createElement('canvas');
+const diyMaskCtx=diyMaskCanvas.getContext('2d');
+let diyKiteConfig=null;
+let diyConfigLastRead=0;
+let diyConfigRawCache=null;
+
+const diyKiteShapeFolderName={
+  'eight-star':'八角星',
+  'hexagon':'六角星',
+  'nine-star':'九连星',
+  'nineteen-star':'十九连星',
+  'seven-star':'七连星',
+  'twenty-three-star':'二十三连星'
+};
+const diyEightStarVariantPatternIds=new Set(['c','d','e','f']);
+const diyWhistleSizePrefix={small:'s',medium:'m',large:'l'};
+const diyHexagonEdgeChooseAssets={
+  'choose-a':'/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-a.png',
+  'choose-b':'/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-b.png',
+  'choose-c':'/diy-assets/whistles/自选边缘式/六角星/六角星-s-whistle-choose-c.png'
+};
+
+function isImageReady(img){
+  return Boolean(img&&img.complete&&img.naturalWidth>0);
+}
+
+function loadDiyImage(src){
+  if(!src)return null;
+  let img=diyImageCache.get(src);
+  if(!img){
+    img=new Image();
+    img.decoding='async';
+    img.src=src;
+    diyImageCache.set(src,img);
+  }
+  return img;
+}
+
+function getDiyKiteConfig(){
+  const now=Date.now();
+  if(now-diyConfigLastRead<DIY_CONFIG_REFRESH_MS)return diyKiteConfig;
+  diyConfigLastRead=now;
+
+  try{
+    const raw=window.localStorage?window.localStorage.getItem(DIY_KITE_STORAGE_KEY):null;
+    if(raw===diyConfigRawCache)return diyKiteConfig;
+    diyConfigRawCache=raw;
+    diyKiteConfig=raw?normalizeDiyKiteConfig(JSON.parse(raw)):null;
+  }catch(e){
+    console.warn('Failed to read kite DIY config.',e);
+    diyKiteConfig=null;
+    diyConfigRawCache=null;
+  }
+
+  return diyKiteConfig;
+}
+
+function normalizeDiyKiteConfig(config){
+  const normalized=Object.assign({
+    kiteShape:'seven-star',
+    centerPatternId:'a',
+    centerPatternPrimaryColor:'#D9FFFF',
+    cornerPatternId:'a',
+    cornerPatternPrimaryColor:'#FFFFCC',
+    surfaceBaseColor:'#BFE6E6',
+    whistleLayoutMode:'horizontal-staggered',
+    whistleFillDensity:'mid',
+    selectedWhistleSizes:[],
+    selectedWhistleAxisGroupIds:[],
+    surfaceEnabled:true,
+    whistlesEnabled:true,
+    centerPatternSelected:true,
+    cornerPatternSelected:true
+  },config||{});
+
+  if(normalized.kiteShape==='cicada')normalized.kiteShape='twenty-three-star';
+  if(!diyKiteShapeFolderName[normalized.kiteShape])normalized.kiteShape='seven-star';
+  if(!['a','b','c','d','e','f'].includes(normalized.centerPatternId))normalized.centerPatternId='a';
+  if(!['a','b','c','d','e','f'].includes(normalized.cornerPatternId))normalized.cornerPatternId='a';
+  if(!['low','mid','high'].includes(normalized.whistleFillDensity))normalized.whistleFillDensity='mid';
+  if(!Array.isArray(normalized.selectedWhistleSizes))normalized.selectedWhistleSizes=[];
+  normalized.selectedWhistleSizes=normalized.selectedWhistleSizes.filter(size=>['small','medium','large'].includes(size));
+  if(!Array.isArray(normalized.selectedWhistleAxisGroupIds))normalized.selectedWhistleAxisGroupIds=[];
+  normalized.selectedWhistleAxisGroupIds=normalized.selectedWhistleAxisGroupIds.filter(id=>['choose-a','choose-b','choose-c','choose-d'].includes(id));
+
+  return normalized;
+}
+
+function getDiyBaseUnitType(kiteShape){
+  return kiteShape==='hexagon'||kiteShape==='seven-star'||kiteShape==='nineteen-star'
+    ?'hexagon'
+    :'eight-star';
+}
+
+function getDiyKiteFrameAsset(kiteShape){
+  const folderName=diyKiteShapeFolderName[kiteShape];
+  const version=kiteShape==='hexagon'
+    ?'?v=20260614-4'
+    :kiteShape==='eight-star'||kiteShape==='nine-star'||kiteShape==='nineteen-star'
+      ?'?v=20260614-2'
+      :'';
+  return `/diy-assets/frames/frame-${folderName}.svg${version}`;
+}
+
+function getDiySurfaceIconAsset(area,patternId,baseUnitType){
+  const suffix=area==='center'&&baseUnitType==='eight-star'&&diyEightStarVariantPatternIds.has(patternId)
+    ?'-2'
+    :'';
+  return `/diy-assets/surface/icons/${area}/${area}-${patternId}${suffix}.svg`;
+}
+
+function isDiySingleUnitCenterLayout(area,kiteShape){
+  return area==='center'&&(kiteShape==='hexagon'||kiteShape==='eight-star');
+}
+
+function getDiyLayoutFileArea(area,kiteShape,patternId){
+  return area==='center'&&kiteShape==='nineteen-star'&&patternId!=='a'?'corner':area;
+}
+
+function getDiySurfaceLayoutAsset(area,kiteShape,patternId){
+  if(isDiySingleUnitCenterLayout(area,kiteShape)){
+    return getDiySurfaceIconAsset(area,patternId,getDiyBaseUnitType(kiteShape));
+  }
+
+  const folderName=diyKiteShapeFolderName[kiteShape];
+  const fileArea=getDiyLayoutFileArea(area,kiteShape,patternId);
+  const version=kiteShape==='hexagon'&&area==='corner'
+    ?'?v=20260614-4'
+    :kiteShape==='eight-star'&&area==='corner'
+      ?'?v=20260614-2'
+      :kiteShape==='nine-star'
+        ?'?v=20260614-2'
+        :'';
+  return `/diy-assets/surface/layouts/${area}/${folderName}/${folderName}-${fileArea}-${patternId}.svg${version}`;
+}
+
+function getDiyFilledFrameMaskImage(frameSrc){
+  if(diyFilledFrameMaskSrcCache.has(frameSrc)){
+    const filledSrc=diyFilledFrameMaskSrcCache.get(frameSrc);
+    return filledSrc?loadDiyImage(filledSrc):null;
+  }
+
+  diyFilledFrameMaskSrcCache.set(frameSrc,'');
+  fetch(frameSrc)
+    .then(response=>{
+      if(!response.ok)throw new Error(`Unable to load frame asset: ${frameSrc}`);
+      return response.text();
+    })
+    .then(svgText=>{
+      const filledSvg=svgText.replace(/(<svg\b[^>]*?)\sfill="none"/,'$1 fill="white"');
+      const dataUrl=`data:image/svg+xml;charset=utf-8,${encodeURIComponent(filledSvg)}`;
+      diyFilledFrameMaskSrcCache.set(frameSrc,dataUrl);
+      loadDiyImage(dataUrl);
+    })
+    .catch(error=>{
+      console.warn('Failed to create kite surface base mask.',error);
+      diyFilledFrameMaskSrcCache.delete(frameSrc);
+    });
+
+  return null;
+}
+
+function drawColoredDiyMask(ctx,img,x,y,w,h,color,alpha){
+  if(!isImageReady(img))return false;
+  const maskW=Math.max(1,Math.ceil(w));
+  const maskH=Math.max(1,Math.ceil(h));
+  diyMaskCanvas.width=maskW;
+  diyMaskCanvas.height=maskH;
+  diyMaskCtx.clearRect(0,0,maskW,maskH);
+  diyMaskCtx.globalCompositeOperation='source-over';
+  diyMaskCtx.globalAlpha=1;
+  diyMaskCtx.drawImage(img,0,0,maskW,maskH);
+  diyMaskCtx.globalCompositeOperation='source-in';
+  diyMaskCtx.globalAlpha=typeof alpha==='number'?alpha:1;
+  diyMaskCtx.fillStyle=color||'#ffffff';
+  diyMaskCtx.fillRect(0,0,maskW,maskH);
+  diyMaskCtx.globalAlpha=1;
+  diyMaskCtx.globalCompositeOperation='source-over';
+  ctx.drawImage(diyMaskCanvas,x,y,w,h);
+  return true;
+}
+
+function getDiyWhistleFillAsset(kiteShape,density,size){
+  const folderName=kiteShape==='hexagon'||kiteShape==='seven-star'||kiteShape==='eight-star'||kiteShape==='nineteen-star'
+    ?diyKiteShapeFolderName[kiteShape]
+    :null;
+  if(!folderName)return null;
+
+  const basePath=`/diy-assets/whistles/覆盖式/${folderName}`;
+  if(size==='large')return `${basePath}/${folderName}-${diyWhistleSizePrefix[size]}-whistle-fill.png`;
+  if(size==='small'&&folderName==='七连星')return `${basePath}/${folderName}-whistle-fill-${density}.png`;
+  return `${basePath}/${folderName}-${diyWhistleSizePrefix[size]}-whistle-fill-${density}.png`;
+}
+
+function getDiyWhistleLayerAssets(config){
+  if(config.whistlesEnabled===false)return [];
+
+  if(config.whistleLayoutMode==='edge'){
+    if(config.kiteShape!=='hexagon')return [];
+    return config.selectedWhistleAxisGroupIds
+      .map(axisGroupId=>diyHexagonEdgeChooseAssets[axisGroupId])
+      .filter(Boolean);
+  }
+
+  return config.selectedWhistleSizes
+    .map(size=>getDiyWhistleFillAsset(config.kiteShape,config.whistleFillDensity,size))
+    .filter(Boolean);
+}
+
+function drawDiyKite(ctx,config,kW,kH){
+  if(!config)return false;
+
+  const frameSrc=getDiyKiteFrameAsset(config.kiteShape);
+  const frameImg=loadDiyImage(frameSrc);
+  if(!isImageReady(frameImg))return false;
+
+  const x=-kW/2;
+  const y=-kH/2;
+  const shouldDrawSurface=config.surfaceEnabled!==false;
+  const baseMaskImg=getDiyFilledFrameMaskImage(frameSrc);
+
+  if(shouldDrawSurface&&isImageReady(baseMaskImg)){
+    drawColoredDiyMask(ctx,baseMaskImg,x,y,kW,kH,'#ffffff',0.34);
+  }
+
+  if(shouldDrawSurface&&config.centerPatternSelected!==false){
+    const centerImg=loadDiyImage(getDiySurfaceLayoutAsset('center',config.kiteShape,config.centerPatternId));
+    if(isDiySingleUnitCenterLayout('center',config.kiteShape)){
+      const centerW=kW*0.42;
+      const centerH=kH*0.42;
+      drawColoredDiyMask(ctx,centerImg,-centerW/2,-centerH/2,centerW,centerH,config.centerPatternPrimaryColor,1);
+    }else{
+      drawColoredDiyMask(ctx,centerImg,x,y,kW,kH,config.centerPatternPrimaryColor,1);
+    }
+  }
+
+  if(shouldDrawSurface&&config.cornerPatternSelected!==false){
+    const cornerImg=loadDiyImage(getDiySurfaceLayoutAsset('corner',config.kiteShape,config.cornerPatternId));
+    drawColoredDiyMask(ctx,cornerImg,x,y,kW,kH,config.cornerPatternPrimaryColor,1);
+  }
+
+  ctx.drawImage(frameImg,x,y,kW,kH);
+
+  getDiyWhistleLayerAssets(config).forEach(src=>{
+    const whistleImg=loadDiyImage(src);
+    if(isImageReady(whistleImg))ctx.drawImage(whistleImg,x,y,kW,kH);
+  });
+
+  return true;
+}
 // 太阳光晕由canvas绘制
 
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?//  PARAM BARS
@@ -573,7 +828,7 @@ function drawFlare(kx,ky){
 
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?//  KITE  椋庣瓭涓績 鈮?(618, 320)  灏哄360脳370
 //  鐢婚潰涓ぎ鍋忎笂,澶у皬閫備腑
-let kXs=680,kYs=390,kRotS=-0.32;
+let kXs=680,kYs=390,kRotS=-0.42;
 let wSpd=0.5,wPow=0.5,wFrq=0.8;
 
 function rotateOffset(x,y,angle){
@@ -587,17 +842,20 @@ function drawKite(t){
     wSpd+=(pitch-wSpd)*.05;wPow+=(volume-wPow)*.05;wFrq+=(handSpeed*3+0.3-wFrq)*.04;
   }
   const baseX=680,baseY=390;
-  const floatAmp=9+wSpd*11;
-  const shake=handSpeed*24;
-  const tX=baseX+Math.sin(t*.55)*12+Math.cos(t*7)*shake*.35;
-  const tY=baseY-wSpd*18+Math.sin(t*wFrq*Math.PI*2)*floatAmp+Math.sin(t*5.2)*shake*.55;
-  kXs+=(tX-kXs)*.12;kYs+=(tY-kYs)*.12;
-  const kRot=Math.sin(t*wFrq*Math.PI*2)*(0.03+handSpeed*.12)+Math.sin(t*.38)*.018;
-  kRotS+=(kRot-kRotS)*.08;
+  const floatAmp=7+wSpd*8;
+  const visualHandSpeed=Math.min(handSpeed,0.035);
+  const shake=visualHandSpeed*10;
+  const tX=baseX+Math.sin(t*.48)*9+Math.cos(t*3.2)*shake*.18;
+  const tY=baseY-wSpd*14+Math.sin(t*wFrq*Math.PI*1.4)*floatAmp+Math.sin(t*2.8)*shake*.22;
+  kXs+=(tX-kXs)*.08;kYs+=(tY-kYs)*.08;
+  const baseKiteRotation=-0.42;
+  const kRot=baseKiteRotation+Math.sin(t*wFrq*Math.PI*1.4)*(0.018+visualHandSpeed*.35)+Math.sin(t*.32)*.012;
+  kRotS+=(kRot-kRotS)*.05;
 
-  // ── 风筝尺寸放大（对齐设计稿约480px）
-  const kW=580,kH=590;
-  const whistleSize=464;
+  // ── 风筝尺寸
+  const kW=460,kH=468;
+  const kiteScale=kW/580;
+  const whistleSize=368;
 
   // ── 风筝线图片：底部锚定页面底部，顶部接线点跟随风筝
   if(kiteLineImg.complete&&kiteLineImg.naturalWidth>0){
@@ -609,7 +867,7 @@ function drawKite(t){
     const anchorRatioY=128/imgNatH; // 接线顶点在图片中的Y比例
 
     // 风筝接线点（风筝体右侧中部）
-    const tailOff=rotateOffset(100,-20,kRotS);
+    const tailOff=rotateOffset(100*kiteScale,-20*kiteScale,kRotS);
     const tailX=kXs+tailOff.x;
     const tailY=kYs+tailOff.y;
 
@@ -655,9 +913,11 @@ function drawKite(t){
   const ang=Math.atan2(kYs-sunY,kXs-sunX),sdist=6+(1-pitch)*4;
   kCtx.shadowColor=`rgba(0,0,0,${.08+(1-pitch)*.06})`;
   kCtx.shadowBlur=18;kCtx.shadowOffsetX=Math.cos(ang)*sdist;kCtx.shadowOffsetY=Math.sin(ang)*sdist;
-  if(kFaceImg.complete&&kFaceImg.naturalWidth>0)kCtx.drawImage(kFaceImg,-kW/2,-kH/2,kW,kH);
+  const activeDiyKiteConfig=getDiyKiteConfig();
+  const diyKiteDrawn=activeDiyKiteConfig?drawDiyKite(kCtx,activeDiyKiteConfig,kW,kH):false;
+  if(!diyKiteDrawn&&kFaceImg.complete&&kFaceImg.naturalWidth>0)kCtx.drawImage(kFaceImg,-kW/2,-kH/2,kW,kH);
   kCtx.shadowColor='transparent';
-  if(whistleRingImg.complete&&whistleRingImg.naturalWidth>0)kCtx.drawImage(whistleRingImg,-whistleSize/2,-whistleSize/2,whistleSize,whistleSize);
+  if(!diyKiteDrawn&&whistleRingImg.complete&&whistleRingImg.naturalWidth>0)kCtx.drawImage(whistleRingImg,-whistleSize/2,-whistleSize/2,whistleSize,whistleSize);
   kCtx.restore();
   return{x:kXs,y:kYs};
 }

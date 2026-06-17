@@ -683,15 +683,25 @@ button:focus-visible {
 
 .whistle-panel .option-card {
   display: grid;
-  min-height: 84px;
+  min-height: 112px;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 8px;
   place-items: center;
-  padding: 8px;
+  padding: 10px 8px;
   border-color: rgba(255, 255, 255, 0.28);
   background: rgba(217, 217, 217, 0.13);
 }
 
 .whistle-panel .option-card h3 {
-  font-size: clamp(9px, 1.2vh, 13px);
+  font-size: clamp(11px, 1.55vh, 16px);
+}
+
+.whistle-layout-icon {
+  display: block;
+  width: min(72px, 62%);
+  height: min(62px, 8vh);
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .density-readout {

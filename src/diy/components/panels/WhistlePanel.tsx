@@ -37,13 +37,14 @@ export function WhistlePanel({
         {whistleLayoutOptions.map((option) => (
           <button
             aria-pressed={option.id === config.whistleLayoutMode}
-            className={`option-card option-card-button option-card-compact${
+            className={`option-card option-card-button option-card-compact whistle-layout-card${
               option.id === config.whistleLayoutMode ? " option-card-selected" : ""
             }`}
             key={option.id}
             onClick={() => onLayoutChange(option.id)}
             type="button"
           >
+            <img alt="" className="whistle-layout-icon" src={option.iconSrc} />
             <h3>{option.label}</h3>
             <p>{option.description}</p>
           </button>

@@ -1,69 +1,105 @@
-import { edgeOptions, whistleLayoutOptions, whistleTypeOptions } from "../../data/whistleOptions";
-import type { EdgeKey, KiteDIYConfig, WhistleLayoutMode } from "../../types/kite";
+import {
+  whistleFillDensityOptions,
+  whistleLayoutOptions,
+  whistleSizeOptions,
+} from "../../data/whistleOptions";
+import type {
+  EdgeKey,
+  KiteDIYConfig,
+  WhistleFillDensity,
+  WhistleLayoutMode,
+  WhistleSize,
+} from "../../types/kite";
 
 interface WhistlePanelProps {
   config: KiteDIYConfig;
-  onDensityChange: (density: number) => void;
+  onDensityChange: (density: WhistleFillDensity) => void;
   onEdgeToggle: (edge: EdgeKey) => void;
   onLayoutChange: (layoutMode: WhistleLayoutMode) => void;
+  onWhistleSizeToggle: (whistleSize: WhistleSize) => void;
 }
 
-export function WhistlePanel({ config, onDensityChange, onEdgeToggle, onLayoutChange }: WhistlePanelProps) {
+export function WhistlePanel({
+  config,
+  onDensityChange,
+  onLayoutChange,
+  onWhistleSizeToggle,
+}: WhistlePanelProps) {
+  const isFillMode = config.whistleLayoutMode === "horizontal-staggered";
+  const supportsEdgeMode =
+    config.kiteShape === "hexagon" ||
+    config.kiteShape === "seven-star" ||
+    config.kiteShape === "eight-star" ||
+    config.kiteShape === "nineteen-star";
+  const edgeModeNote =
+    supportsEdgeMode
+      ? "悬停风筝主轴预览哨口，点击选择，再次点击取消"
+      : "边缘式当前先支持六角星、七连星、八角星、十九连星测试";
+
   return (
     <div className="whistle-panel">
       <div className="layout-options">
         {whistleLayoutOptions.map((option) => (
           <button
             aria-pressed={option.id === config.whistleLayoutMode}
-            className={`option-card option-card-button option-card-compact${
+            className={`option-card option-card-button option-card-compact whistle-layout-card${
               option.id === config.whistleLayoutMode ? " option-card-selected" : ""
             }`}
             key={option.id}
             onClick={() => onLayoutChange(option.id)}
             type="button"
           >
+            <img alt="" className="whistle-layout-icon" src={option.iconSrc} />
             <h3>{option.label}</h3>
             <p>{option.description}</p>
           </button>
         ))}
       </div>
 
-      <div className="density-readout">
-        <label htmlFor="whistle-density">疏密</label>
-        <input
-          id="whistle-density"
-          max="1"
-          min="0"
-          onChange={(event) => onDensityChange(Number(event.target.value))}
-          step="0.01"
-          type="range"
-          value={config.whistleDensity}
-        />
-        <strong>{Math.round(config.whistleDensity * 100)}%</strong>
+      <div className="whistle-control-group">
+        <span className="whistle-control-label">密度</span>
+        <div className="whistle-segmented-row" aria-label="覆盖式密度">
+          {whistleFillDensityOptions.map((density) => (
+            <button
+              aria-pressed={density.id === config.whistleFillDensity}
+              className={`whistle-choice-button${
+                density.id === config.whistleFillDensity ? " whistle-choice-button-selected" : ""
+              }`}
+              disabled={!isFillMode}
+              key={density.id}
+              onClick={() => onDensityChange(density.id)}
+              type="button"
+            >
+              {density.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="edge-row" aria-label="边缘选择">
-        {edgeOptions.map((edge) => (
-          <button
-            aria-pressed={config.selectedEdges.includes(edge.id)}
-            className={config.selectedEdges.includes(edge.id) ? "edge-chip edge-chip-selected" : "edge-chip"}
-            key={edge.id}
-            onClick={() => onEdgeToggle(edge.id)}
-            type="button"
-          >
-            {edge.label}
-          </button>
-        ))}
+      <div className="whistle-control-group">
+        <span className="whistle-control-label">哨口</span>
+        <div className="whistle-size-row" aria-label="哨口大小">
+          {whistleSizeOptions.map((size) => (
+            <button
+              aria-pressed={config.selectedWhistleSizes.includes(size.id)}
+              className={`whistle-choice-button whistle-size-button${
+                config.selectedWhistleSizes.includes(size.id)
+                  ? " whistle-choice-button-selected"
+                  : ""
+              }`}
+              disabled={!isFillMode}
+              key={size.id}
+              onClick={() => onWhistleSizeToggle(size.id)}
+              title={size.description}
+              type="button"
+            >
+              {size.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="whistle-type-row" aria-label="哨口类型">
-        {whistleTypeOptions.map((type) => (
-          <span className={`whistle-type whistle-type-${type.id}`} key={type.id}>
-            <img alt="" src={type.iconSrc} />
-            {type.label}
-          </span>
-        ))}
-      </div>
+      {!isFillMode ? <p className="whistle-panel-note">{edgeModeNote}</p> : null}
     </div>
   );
 }

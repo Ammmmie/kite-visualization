@@ -132,6 +132,76 @@ button:focus-visible {
   position: absolute;
   z-index: 5;
   inset: 0;
+  pointer-events: none;
+}
+
+.kite-preview-shape-nine-star .kite-frame-preview-image,
+.kite-preview-shape-twenty-three-star .kite-frame-preview-image {
+  filter: brightness(0) invert(1);
+}
+
+.whistle-fill-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.whistle-edge-layer {
+  z-index: 5;
+}
+
+.whistle-edge-hover-layer {
+  opacity: 0.35;
+}
+
+.whistle-edge-selected-layer {
+  opacity: 1;
+}
+
+.whistle-edge-hit-layer {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+}
+
+.whistle-edge-hit-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+.whistle-edge-hit-group {
+  cursor: pointer;
+  outline: none;
+  pointer-events: all;
+}
+
+.whistle-edge-hit-shape {
+  fill: transparent;
+  pointer-events: all;
+  stroke: transparent;
+  stroke-width: 1;
+}
+
+.whistle-edge-hit-svg-debug .whistle-edge-hit-shape {
+  transition:
+    fill 160ms ease,
+    stroke 160ms ease;
+}
+
+.whistle-edge-hit-svg-debug .whistle-edge-hit-group-hovered .whistle-edge-hit-shape {
+  fill: rgba(146, 219, 255, 0.3);
+  stroke: rgba(212, 238, 255, 0.86);
+}
+
+.whistle-edge-hit-svg-debug .whistle-edge-hit-group-selected .whistle-edge-hit-shape {
+  fill: rgba(255, 255, 255, 0.18);
+  stroke: rgba(255, 255, 255, 0.94);
 }
 
 .kite-surface-pattern-layer {
@@ -338,6 +408,11 @@ button:focus-visible {
 .frame-option-twenty-three-star .frame-thumb img {
   width: 86%;
   height: 86%;
+}
+
+.frame-option-nine-star .frame-thumb img,
+.frame-option-twenty-three-star .frame-thumb img {
+  filter: brightness(0) invert(1);
 }
 
 .frame-thumb span {
@@ -618,15 +693,25 @@ button:focus-visible {
 
 .whistle-panel .option-card {
   display: grid;
-  min-height: 84px;
+  min-height: 112px;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 8px;
   place-items: center;
-  padding: 8px;
+  padding: 10px 8px;
   border-color: rgba(255, 255, 255, 0.28);
   background: rgba(217, 217, 217, 0.13);
 }
 
 .whistle-panel .option-card h3 {
-  font-size: clamp(9px, 1.2vh, 13px);
+  font-size: clamp(11px, 1.55vh, 16px);
+}
+
+.whistle-layout-icon {
+  display: block;
+  width: min(72px, 62%);
+  height: min(62px, 8vh);
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .density-readout {
@@ -637,6 +722,70 @@ button:focus-visible {
   color: rgba(255, 255, 255, 0.86);
   font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: clamp(8px, 1.25vh, 12px);
+}
+
+.whistle-control-group {
+  display: grid;
+  gap: 9px;
+  align-content: start;
+}
+
+.whistle-control-label {
+  color: rgba(255, 255, 255, 0.88);
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(10px, 1.5vh, 15px);
+  line-height: 1;
+}
+
+.whistle-segmented-row,
+.whistle-size-row {
+  display: grid;
+  gap: 8px;
+}
+
+.whistle-segmented-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.whistle-size-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.whistle-choice-button {
+  min-width: 0;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.08);
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(10px, 1.45vh, 14px);
+  line-height: 1;
+}
+
+.whistle-choice-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.whistle-choice-button-selected {
+  border-color: #d4eeff;
+  color: #ffffff;
+  background: rgba(134, 207, 255, 0.18);
+  box-shadow: 0 0 8px 0.4px rgba(134, 207, 255, 0.78);
+}
+
+.whistle-choice-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.whistle-panel-note {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(9px, 1.3vh, 13px);
+  line-height: 1.5;
 }
 
 .density-readout input[type="range"] {
@@ -721,14 +870,510 @@ button:focus-visible {
   bottom: 6.7%;
 }
 
+/* New high-fidelity DIY shell */
+.diy-page {
+  min-height: 100vh;
+  padding: 0;
+  background: #0f1822;
+}
+
+.diy-page-standalone,
+.diy-page-embedded {
+  min-height: 100vh;
+}
+
+.diy-stage,
+.diy-page-embedded .diy-stage {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  background: #0f1822;
+}
+
+.diy-stage::after {
+  position: absolute;
+  right: calc(clamp(360px, 25.95vw, 520px) + 36px);
+  bottom: 36px;
+  color: #fffea3;
+  content: "Kitesong in the High Wind";
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(12px, 1.25vw, 24px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.diy-title-lockup {
+  position: absolute;
+  left: clamp(24px, 3.1vw, 60px);
+  top: clamp(24px, 4.6vh, 55px);
+  z-index: 8;
+  display: grid;
+  gap: clamp(22px, 3.3vh, 36px);
+  color: #ffffff;
+  pointer-events: none;
+}
+
+.diy-title-lockup p {
+  margin: 0;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: clamp(20px, 1.7vw, 32px);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.diy-title-icon {
+  display: block;
+  width: clamp(22px, 2.4vw, 42px);
+  aspect-ratio: 1;
+  clip-path: polygon(50% 0, 70% 28%, 100% 50%, 70% 72%, 50% 100%, 30% 72%, 0 50%, 30% 28%);
+}
+
+.diy-title-icon-primary {
+  background: #fffea3;
+}
+
+.diy-title-icon-muted {
+  margin-top: clamp(-10px, -1vh, -4px);
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.diy-step-tabs {
+  position: absolute;
+  top: clamp(22px, 3.3vh, 40px);
+  right: calc(clamp(360px, 25.95vw, 520px) + 22px);
+  z-index: 12;
+  display: grid;
+  width: clamp(88px, 5.42vw, 104px);
+  gap: clamp(10px, 1.5vh, 18px);
+}
+
+.diy-step-tab {
+  display: grid;
+  width: 100%;
+  min-height: clamp(34px, 3.35vh, 40px);
+  grid-template-columns: 1fr 18px;
+  align-items: center;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 5px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.45);
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: clamp(12px, 1.05vw, 14px);
+  line-height: 1;
+}
+
+.diy-step-tab:hover {
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.diy-step-tab-active {
+  color: #111111;
+  background: #fffea3;
+}
+
+.diy-step-tab-active:hover {
+  background: #fffea3;
+}
+
+.diy-step-tab-mark {
+  display: grid;
+  min-height: 18px;
+  place-items: center;
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+}
+
+.preview-area {
+  left: 11.5%;
+  top: 11.5%;
+  width: 56%;
+  height: 78%;
+  overflow: visible;
+}
+
+.kite-preview-stage {
+  left: 50%;
+  top: 50%;
+}
+
+.kite-frame-preview-unified {
+  width: min(74%, 800px);
+  height: min(82%, 800px);
+}
+
+.kite-frame-preview-image {
+  filter: brightness(0) saturate(100%) invert(94%) sepia(47%) saturate(459%) hue-rotate(355deg)
+    brightness(107%) contrast(104%);
+}
+
+.kite-preview-shape-nine-star .kite-frame-preview-image,
+.kite-preview-shape-twenty-three-star .kite-frame-preview-image {
+  filter: brightness(0) saturate(100%) invert(94%) sepia(47%) saturate(459%) hue-rotate(355deg)
+    brightness(107%) contrast(104%);
+}
+
+.diy-info-panel {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  width: clamp(360px, 25.95vw, 520px);
+  min-width: 0;
+  max-width: none;
+  grid-template-rows: auto minmax(0, 1fr);
+  padding: clamp(22px, 3.25vh, 39px) clamp(20px, 1.4vw, 28px) clamp(20px, 2.25vh, 27px);
+  color: #111111;
+  background: #fbffd2;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.diy-info-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.diy-info-header h2 {
+  margin: 0;
+  color: #000000;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(28px, 2.1vw, 40px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.diy-ok-button {
+  min-width: clamp(72px, 5.4vw, 104px);
+  min-height: clamp(32px, 3.35vh, 40px);
+  padding: 0 18px;
+  border: 0;
+  border-radius: 4px;
+  color: #ffffff;
+  background: #000000;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(13px, 1.05vw, 20px);
+  line-height: 1;
+}
+
+.diy-ok-button:hover {
+  background: #2b2b2b;
+}
+
+.diy-info-content {
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: clamp(18px, 2.1vh, 26px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
+}
+
+.frame-about-content {
+  display: grid;
+  min-height: 100%;
+  grid-template-rows: auto minmax(230px, 1fr) auto;
+  gap: clamp(22px, 3.4vh, 40px);
+}
+
+.frame-about-copy h3,
+.diy-module-copy h3 {
+  margin: 0 0 12px;
+  color: #111111;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: clamp(20px, 1.55vw, 30px);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.frame-about-copy p,
+.diy-module-copy p {
+  margin: 0 0 18px;
+  color: #282828;
+  font-size: clamp(13px, 0.85vw, 16px);
+  font-weight: 300;
+  line-height: 1.9;
+  text-align: justify;
+}
+
+.frame-about-copy-en {
+  font-size: clamp(10px, 0.68vw, 12px) !important;
+  line-height: 1.65 !important;
+}
+
+.frame-about-hint {
+  margin: 0;
+  color: #222222;
+  font-size: clamp(10px, 0.7vw, 12px);
+  font-weight: 300;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.diy-info-panel .frame-grid {
+  height: auto;
+  min-height: 235px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(92px, 1fr);
+  gap: clamp(18px, 3.5vh, 42px) clamp(16px, 2.4vw, 36px);
+  align-content: center;
+}
+
+.diy-info-panel .option-card {
+  color: #111111;
+}
+
+.diy-info-panel .option-card-button:hover,
+.diy-info-panel .pattern-chip:hover,
+.diy-info-panel .edge-chip:hover,
+.diy-info-panel .color-chip-button:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.diy-info-panel .frame-option-card {
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 84px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.diy-info-panel .frame-option-card h3 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.diy-info-panel .frame-thumb {
+  min-height: 72px;
+}
+
+.diy-info-panel .frame-thumb img {
+  filter: brightness(0) saturate(100%) invert(72%) sepia(3%) saturate(25%) hue-rotate(9deg)
+    brightness(94%) contrast(86%);
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
+}
+
+.diy-info-panel .frame-option-card.option-card-selected .frame-thumb img {
+  filter: brightness(0) saturate(100%) invert(94%) sepia(47%) saturate(459%) hue-rotate(355deg)
+    brightness(107%) contrast(104%);
+  transform: scale(1.06);
+}
+
+.diy-info-panel .frame-option-card.option-card-selected {
+  border: 0;
+  box-shadow: none;
+}
+
+.diy-info-panel .frame-option-hexagon .frame-thumb img,
+.diy-info-panel .frame-option-eight-star .frame-thumb img {
+  width: 72%;
+  height: 72%;
+}
+
+.diy-info-panel .frame-option-seven-star .frame-thumb img,
+.diy-info-panel .frame-option-nine-star .frame-thumb img,
+.diy-info-panel .frame-option-twenty-three-star .frame-thumb img {
+  width: 92%;
+  height: 92%;
+}
+
+.diy-info-panel .frame-option-nineteen-star .frame-thumb img {
+  width: 102%;
+  height: 102%;
+}
+
+.diy-module-panel {
+  display: grid;
+  min-height: 100%;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 22px;
+}
+
+.diy-info-panel .surface-panel,
+.diy-info-panel .whistle-panel {
+  gap: 18px;
+}
+
+.diy-info-panel .surface-panel {
+  grid-template-rows: repeat(2, minmax(210px, 1fr));
+}
+
+.diy-info-panel .surface-part {
+  grid-template-columns: minmax(82px, 25%) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.diy-info-panel .surface-part h3,
+.diy-info-panel .surface-control-label,
+.diy-info-panel .whistle-control-label {
+  color: #111111;
+}
+
+.diy-info-panel .surface-part-controls {
+  border-color: rgba(0, 0, 0, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.34);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.diy-info-panel .surface-color-value,
+.diy-info-panel .whistle-choice-button,
+.diy-info-panel .whistle-panel .option-card,
+.diy-info-panel .edge-chip,
+.diy-info-panel .whistle-type {
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #111111;
+  background: rgba(255, 255, 255, 0.36);
+  box-shadow: none;
+}
+
+.diy-info-panel .surface-color-code,
+.diy-info-panel .surface-color-opacity,
+.diy-info-panel .density-readout,
+.diy-info-panel .whistle-panel-note {
+  color: rgba(0, 0, 0, 0.72);
+}
+
+.diy-info-panel .surface-pattern-option {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.diy-info-panel .surface-pattern-option:hover,
+.diy-info-panel .whistle-choice-button:hover:not(:disabled),
+.diy-info-panel .whistle-panel .option-card:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.diy-info-panel .surface-pattern-option-selected,
+.diy-info-panel .whistle-choice-button-selected,
+.diy-info-panel .whistle-panel .option-card-selected {
+  border-color: #111111;
+  background: #fffea3;
+  box-shadow: 0 0 0 1px #111111;
+}
+
+.diy-info-panel .surface-pattern-option img {
+  filter: brightness(0);
+}
+
+.diy-info-panel .surface-unit-frame {
+  filter: brightness(0);
+}
+
+.diy-info-panel .whistle-panel .option-card {
+  min-height: 116px;
+}
+
+.diy-info-panel .whistle-layout-icon {
+  width: min(86px, 72%);
+  height: min(72px, 8.5vh);
+  filter: brightness(0);
+}
+
+.diy-step-dial {
+  position: absolute;
+  left: clamp(28px, 2vw, 44px);
+  bottom: clamp(22px, 5.8vh, 70px);
+  z-index: 9;
+  width: clamp(150px, 14.45vw, 277px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 50%;
+  color: #fffea3;
+}
+
+.diy-step-dial::after {
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #fffea3;
+  border-right-color: #fffea3;
+  content: "";
+  transform: rotate(-4deg);
+  pointer-events: none;
+}
+
+.diy-step-dial-divider {
+  position: absolute;
+  left: 50%;
+  top: 16%;
+  width: 1px;
+  height: 72%;
+  background: #fffea3;
+  transform: rotate(32deg);
+  transform-origin: center;
+}
+
+.diy-step-dial-action {
+  position: absolute;
+  display: grid;
+  border: 0;
+  color: #fffea3;
+  background: transparent;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.diy-step-dial-action:hover {
+  color: #ffffff;
+}
+
+.diy-step-dial-action span {
+  font-size: clamp(9px, 0.72vw, 14px);
+  font-weight: 300;
+  line-height: 1;
+}
+
+.diy-step-dial-action strong {
+  font-size: clamp(48px, 4.2vw, 80px);
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.diy-step-dial-action i {
+  font-style: normal;
+  font-size: clamp(18px, 1.8vw, 34px);
+  line-height: 1;
+}
+
+.diy-step-dial-back {
+  left: 15%;
+  top: 23%;
+  justify-items: start;
+  gap: 8px;
+}
+
+.diy-step-dial-next {
+  right: 12%;
+  bottom: 15%;
+  justify-items: end;
+  gap: 8px;
+}
+
 @media (max-aspect-ratio: 539 / 280) {
   .diy-page {
-    padding: 16px;
+    padding: 0;
   }
 
   .diy-stage {
-    width: calc(100vw - 32px);
-    height: calc((100vw - 32px) / 1.932);
+    width: 100vw;
+    height: 100vh;
   }
 }
 

@@ -36,12 +36,12 @@ export const frameOptions: FrameOption[] = [
     id: "nine-star",
     label: "九联星",
     description: "多单元组合",
-    assetSrc: "/diy-assets/frames/frame-九连星.svg?v=20260614-2",
+    assetSrc: "/diy-assets/frames/frame-九连星.svg?v=20260617-1",
   },
   {
     id: "twenty-three-star",
     label: "二十三联星",
     description: "八角星基础单元的大型组合",
-    assetSrc: "/diy-assets/frames/frame-二十三连星.svg",
+    assetSrc: "/diy-assets/frames/frame-二十三连星.svg?v=20260617-1",
   },
 ];

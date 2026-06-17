@@ -4,32 +4,29 @@ import {
   getSurfaceLayoutAsset,
   usesSingleUnitCenterFallback,
 } from "../../data/surfaceAssets";
-import { whistleTypeOptions } from "../../data/whistleOptions";
+import {
+  getWhistleEdgeChooseAsset,
+  getWhistleFillLayers,
+} from "../../data/whistleAssets";
 import type {
   KiteDIYConfig,
   KiteShape,
   SurfaceArea,
   SurfacePatternId,
-  WhistleType,
+  WhistleEdgeAxisGroupId,
 } from "../../types/kite";
 import { SurfaceBaseLayer } from "./SurfaceBaseLayer";
+import { WhistleEdgeHitAreas } from "./WhistleEdgeHitAreas";
 
-const whistleIconByType = whistleTypeOptions.reduce<Record<WhistleType, string>>(
-  (icons, option) => ({
-    ...icons,
-    [option.id]: option.iconSrc,
-  }),
-  {
-    high: "/diy-assets/whistles/whistle.png",
-    low: "/diy-assets/whistles/whistle.png",
-    mid: "/diy-assets/whistles/whistle.png",
-  },
-);
+const SHOW_WHISTLE_HITAREA_DEBUG = false;
 
 interface KitePreviewProps {
   centerPatternSelected: boolean;
   config: KiteDIYConfig;
   cornerPatternSelected: boolean;
+  hoveredWhistleAxisGroupId: WhistleEdgeAxisGroupId | null;
+  onWhistleAxisGroupHover: (axisGroupId: WhistleEdgeAxisGroupId | null) => void;
+  onWhistleAxisGroupToggle: (axisGroupId: WhistleEdgeAxisGroupId) => void;
   previewEnabled: boolean;
   surfaceEnabled: boolean;
   whistlesEnabled: boolean;
@@ -39,11 +36,34 @@ export function KitePreview({
   centerPatternSelected,
   config,
   cornerPatternSelected,
+  hoveredWhistleAxisGroupId,
+  onWhistleAxisGroupHover,
+  onWhistleAxisGroupToggle,
   previewEnabled,
   surfaceEnabled,
   whistlesEnabled,
 }: KitePreviewProps) {
   const frameAsset = frameOptions.find((option) => option.id === config.kiteShape)?.assetSrc;
+  const whistleFillLayers = getWhistleFillLayers(
+    config.kiteShape,
+    config.whistleFillDensity,
+    config.selectedWhistleSizes,
+  );
+  const isEdgeMode = config.whistleLayoutMode === "edge";
+  const canUseEdgeHitAreas =
+    isEdgeMode &&
+    (config.kiteShape === "hexagon" ||
+      config.kiteShape === "seven-star" ||
+      config.kiteShape === "eight-star" ||
+      config.kiteShape === "nineteen-star");
+  const hoveredEdgeAsset = hoveredWhistleAxisGroupId
+    ? getWhistleEdgeChooseAsset(config.kiteShape, hoveredWhistleAxisGroupId)
+    : undefined;
+  const shouldShowHoverLayer =
+    canUseEdgeHitAreas &&
+    hoveredWhistleAxisGroupId !== null &&
+    !config.selectedWhistleAxisGroupIds.includes(hoveredWhistleAxisGroupId) &&
+    hoveredEdgeAsset !== undefined;
 
   return (
     <section className="preview-area" aria-label="风筝实时预览">
@@ -75,23 +95,53 @@ export function KitePreview({
             </>
           ) : null}
 
-          {whistlesEnabled ? (
+          {whistlesEnabled && !isEdgeMode ? (
             <div className="whistle-layer" aria-hidden="true">
-              {config.generatedWhistles.map((whistle) => (
+              {whistleFillLayers.map((layer) => (
                 <img
                   alt=""
-                  className={`whistle-icon whistle-icon-${whistle.type}`}
-                  key={whistle.id}
-                  src={whistleIconByType[whistle.type]}
-                  style={{
-                    height: `${Math.max(10, whistle.size * 1.12)}px`,
-                    left: `${whistle.x}%`,
-                    top: `${whistle.y}%`,
-                    transform: `translate(-50%, -50%) rotate(${whistle.rotation}deg)`,
-                    width: `${Math.max(12, whistle.size * 1.32)}px`,
-                  }}
+                  className={`whistle-fill-image whistle-fill-image-${layer.size}`}
+                  key={layer.id}
+                  src={layer.src}
                 />
               ))}
+            </div>
+          ) : null}
+
+          {whistlesEnabled && canUseEdgeHitAreas ? (
+            <div className="whistle-layer whistle-edge-layer" aria-hidden="true">
+              {config.selectedWhistleAxisGroupIds.map((axisGroupId) => {
+                const edgeAsset = getWhistleEdgeChooseAsset(config.kiteShape, axisGroupId);
+
+                return edgeAsset ? (
+                  <img
+                    alt=""
+                    className="whistle-fill-image whistle-edge-selected-layer"
+                    key={axisGroupId}
+                    src={edgeAsset}
+                  />
+                ) : null;
+              })}
+              {shouldShowHoverLayer ? (
+                <img
+                  alt=""
+                  className="whistle-fill-image whistle-edge-hover-layer"
+                  src={hoveredEdgeAsset}
+                />
+              ) : null}
+            </div>
+          ) : null}
+
+          {canUseEdgeHitAreas ? (
+            <div className="whistle-edge-hit-layer" aria-label="边缘式哨口轴组">
+              <WhistleEdgeHitAreas
+                hoveredAxisGroupId={hoveredWhistleAxisGroupId}
+                kiteShape={config.kiteShape}
+                onHover={onWhistleAxisGroupHover}
+                onToggle={onWhistleAxisGroupToggle}
+                selectedAxisGroupIds={config.selectedWhistleAxisGroupIds}
+                debug={SHOW_WHISTLE_HITAREA_DEBUG}
+              />
             </div>
           ) : null}
         </div>

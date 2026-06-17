@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const DEFAULT_SCROLL_SPEED = 36;
+const REPEAT_COUNT = 13;
+const CENTER_GROUP_INDEX = Math.floor(REPEAT_COUNT / 2);
 
 export default function AutoScrollStrip({
   title,
@@ -11,13 +13,15 @@ export default function AutoScrollStrip({
   pauseOnHover = true,
   draggable = true,
   renderItem,
-  className = ""
+  className = "",
+  initialIndex = 0
 }) {
   const stripRef = useRef(null);
   const groupRef = useRef(null);
   const rafRef = useRef(0);
   const lastFrameRef = useRef(0);
   const groupWidthRef = useRef(0);
+  const hasPositionedRef = useRef(false);
   const isPausedRef = useRef(false);
   const isPointerDownRef = useRef(false);
   const isDraggingRef = useRef(false);
@@ -28,6 +32,28 @@ export default function AutoScrollStrip({
   const suppressClickRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
 
+  const getInitialOffset = useCallback(() => {
+    const group = groupRef.current;
+    if (!group) {
+      return 0;
+    }
+
+    const initialItem = group.querySelector(`[data-auto-scroll-index="${initialIndex}"]`);
+    return initialItem ? Math.max(0, initialItem.offsetLeft - group.offsetLeft) : 0;
+  }, [initialIndex]);
+
+  const centerScroll = useCallback((preservePhase = true) => {
+    const strip = stripRef.current;
+    const groupWidth = groupWidthRef.current;
+    if (!strip || groupWidth <= 0) {
+      return;
+    }
+
+    const phase = preservePhase ? ((strip.scrollLeft % groupWidth) + groupWidth) % groupWidth : getInitialOffset();
+    strip.scrollLeft = groupWidth * CENTER_GROUP_INDEX + phase;
+    hasPositionedRef.current = true;
+  }, [getInitialOffset]);
+
   const normalizeScroll = useCallback(() => {
     const strip = stripRef.current;
     const groupWidth = groupWidthRef.current;
@@ -35,28 +61,53 @@ export default function AutoScrollStrip({
       return;
     }
 
-    while (strip.scrollLeft >= groupWidth) {
+    const lowerBound = groupWidth * CENTER_GROUP_INDEX;
+    const upperBound = lowerBound + groupWidth;
+
+    while (strip.scrollLeft >= upperBound) {
       strip.scrollLeft -= groupWidth;
     }
 
-    while (strip.scrollLeft < 0) {
+    while (strip.scrollLeft < lowerBound) {
       strip.scrollLeft += groupWidth;
     }
   }, []);
 
   useEffect(() => {
     const measure = () => {
-      groupWidthRef.current = groupRef.current?.scrollWidth || 0;
-      normalizeScroll();
+      const nextGroupWidth = groupRef.current?.scrollWidth || 0;
+      if (nextGroupWidth <= 0) {
+        return;
+      }
+
+      groupWidthRef.current = nextGroupWidth;
+      if (!hasPositionedRef.current) {
+        centerScroll(false);
+      } else {
+        normalizeScroll();
+      }
     };
 
+    hasPositionedRef.current = false;
     measure();
+    const frameId = window.requestAnimationFrame(measure);
     window.addEventListener("resize", measure);
+    const resizeObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    if (resizeObserver) {
+      if (stripRef.current) {
+        resizeObserver.observe(stripRef.current);
+      }
+      if (groupRef.current) {
+        resizeObserver.observe(groupRef.current);
+      }
+    }
 
     return () => {
+      window.cancelAnimationFrame(frameId);
       window.removeEventListener("resize", measure);
+      resizeObserver?.disconnect();
     };
-  }, [items, normalizeScroll]);
+  }, [items, centerScroll, normalizeScroll]);
 
   useEffect(() => {
     const tick = (timestamp) => {
@@ -150,7 +201,11 @@ export default function AutoScrollStrip({
 
       if (isDraggingRef.current) {
         strip.scrollLeft = dragStartScrollRef.current - deltaX;
+        const beforeNormalize = strip.scrollLeft;
         normalizeScroll();
+        if (strip.scrollLeft !== beforeNormalize) {
+          dragStartScrollRef.current = strip.scrollLeft + deltaX;
+        }
       }
     },
     [normalizeScroll, pauseOnHover]
@@ -183,7 +238,9 @@ export default function AutoScrollStrip({
         return;
       }
 
-      if (isDraggingRef.current) {
+      const wasDragging = isDraggingRef.current;
+
+      if (wasDragging) {
         stripRef.current?.releasePointerCapture?.(event.pointerId);
       }
 
@@ -192,7 +249,7 @@ export default function AutoScrollStrip({
       activePointerIdRef.current = null;
       setIsDragging(false);
 
-      isPausedRef.current = Boolean(pauseOnHover && stripRef.current?.matches(":hover"));
+      isPausedRef.current = wasDragging ? false : Boolean(pauseOnHover && stripRef.current?.matches(":hover"));
     },
     [pauseOnHover]
   );
@@ -234,18 +291,19 @@ export default function AutoScrollStrip({
       onWheel={handleWheel}
     >
       <div className="auto-scroll-strip__track">
-        {[0, 1].map((groupIndex) => (
+        {Array.from({ length: REPEAT_COUNT }, (_, groupIndex) => (
           <div
             className="auto-scroll-strip__group"
             key={groupIndex}
             ref={groupIndex === 0 ? groupRef : undefined}
-            aria-hidden={groupIndex === 1}
+            aria-hidden={groupIndex !== CENTER_GROUP_INDEX}
           >
             {items.map((item, itemIndex) => (
               <button
-                className={`auto-scroll-strip__item ${renderItem ? "auto-scroll-strip__item--custom" : ""}`}
+                className={`auto-scroll-strip__item ${renderItem ? "auto-scroll-strip__item--custom" : ""} ${item.itemClassName || ""}`}
                 type="button"
                 key={`${item.id || item.src || item.alt}-${groupIndex}-${itemIndex}`}
+                data-auto-scroll-index={itemIndex}
                 onClick={(event) => handleItemClick(event, item)}
                 aria-label={item.ariaLabel || `Preview ${item.path || item.alt || title}`}
               >

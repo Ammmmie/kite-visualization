@@ -26,17 +26,17 @@ const assets = {
     query: "?url",
     import: "default"
   }),
-  ...import.meta.glob("../assets/figma/\u795e\u8bdd\u4eba\u7269\u7eb9\u6837/*.{png,jpg,jpeg,webp}", {
+  ...import.meta.glob("../assets/figma/patterns/figure-hd/*.{png,jpg,jpeg,webp}", {
     eager: true,
     query: "?url",
     import: "default"
   }),
-  ...import.meta.glob("../assets/figma/\u52a8\u690d\u7269\u7eb9\u6837/*.{png,jpg,jpeg,webp}", {
+  ...import.meta.glob("../assets/figma/patterns/animal-hd/*.{png,jpg,jpeg,webp}", {
     eager: true,
     query: "?url",
     import: "default"
   }),
-  ...import.meta.glob("../assets/figma/\u6c11\u95f4\u5de5\u827a\u7eb9\u6837/*.{png,jpg,jpeg,webp}", {
+  ...import.meta.glob("../assets/figma/patterns/craft-hd/*.{png,jpg,jpeg,webp}", {
     eager: true,
     query: "?url",
     import: "default"
@@ -48,9 +48,9 @@ const collator = new Intl.Collator("zh-CN", { numeric: true, sensitivity: "base"
 const folderNames = {
   octagon: "\u516b\u89d2\u53d8\u5f62",
   hexagon: "\u516d\u89d2\u53d8\u5f62",
-  people: "\u795e\u8bdd\u4eba\u7269\u7eb9\u6837",
-  animal: "\u52a8\u690d\u7269\u7eb9\u6837",
-  craft: "\u6c11\u95f4\u5de5\u827a\u7eb9\u6837"
+  people: "patterns/figure-hd",
+  animal: "patterns/animal-hd",
+  craft: "patterns/craft-hd"
 };
 
 const labels = {

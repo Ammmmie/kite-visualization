@@ -600,7 +600,7 @@ body {
 
 .kite-cover-scroll {
   z-index: 32;
-  height: 300vh;
+  height: 380vh;
   margin-top: -130vh;
 }
 
@@ -759,6 +759,34 @@ body {
 }
 
 .kite-cover-text p {
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* 终幕失传风险文字：参考图中偏中下、靠左对齐，与主文字同风格 */
+.kite-final-text {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 64%;
+  transform: translate(-2%, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  font-family: "Noto Serif SC", serif;
+  font-weight: 300;
+  font-size: clamp(14px, 1.15vw, 19px);
+  line-height: 2.1;
+  letter-spacing: 0.04em;
+  color: #fffea3;
+  text-shadow: 0 1px 12px rgba(60, 80, 60, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.kite-final-text p {
   margin: 0;
   white-space: nowrap;
 }

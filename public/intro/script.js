@@ -34,6 +34,7 @@
   const kiteCoverSky = document.querySelector(".kite-cover-sky");
   const kiteCoverFarm = document.getElementById("kiteCoverFarm");
   const kiteCoverText = document.getElementById("kiteCoverText");
+  const kiteFinalText = document.getElementById("kiteFinalText");
   const kiteCover = document.getElementById("kiteCover");
   const skyKite1 = document.getElementById("skyKite1");
   const skyKite3 = document.getElementById("skyKite3");
@@ -367,8 +368,14 @@
   // sky-kite-1 / sky-kite-3：left/top 百分比 + 宽度(px) + 轻晃幅度
   const kiteConfig = {
     zoom: { x: -12.5, y: 40, scale: 0.76, rot: -28.5, swayX: 0.9, swayY: 0.6, swayR: 1.2 },
-    sky1: { left: 23.5, top: 0, width: 1200, swayX: 0.5, swayY: 0.5, swayR: 0 },
-    sky3: { left: 62.5, top: 9, width: 727, swayX: 0.2, swayY: 2.3, swayR: 2.4 },
+    // sky1 / sky3 现在会「飞入」：fromX/fromY 为进场起点偏移(vw/vh)，
+    // inStart/inEnd 为各自飞入的 coverRaw 时间窗。主风筝 0.80 已定格，
+    // 两只在其后依次飞入：sky1 (0.80→0.89) 先，sky3 (0.88→0.98) 后。
+    // 进场偏移加大、起点拉到屏外，飞入动势更明显。
+    sky1: { left: 23.5, top: 0, width: 1200, swayX: 0.5, swayY: 0.5, swayR: 0,
+            fromX: -70, fromY: -30, fromRot: -22, inStart: 0.80, inEnd: 0.89 },
+    sky3: { left: 62.5, top: 9, width: 727, swayX: 0.2, swayY: 2.3, swayR: 2.4,
+            fromX: 78, fromY: -34, fromRot: 26, inStart: 0.88, inEnd: 0.98 },
   };
 
   // ===================== 滚动视差主循环 =====================
@@ -637,49 +644,67 @@
       const focusTo80 = segEaseBy("out", coverRaw, 0.04, 0.30);
       const blur80 = lerp(6, 1, focusTo80);
 
-      // 阶段4：缩小（保持清晰，blur 在缩小段进一步收到 0）
-      const shrinkProgress = segEaseBy("inout", coverRaw, 0.62, 0.90);
+      // 阶段4：缩小（保持清晰，blur 在缩小段进一步收到 0）——提前到 0.80 定格，
+      // 让主风筝先完全落定，再把两只小风筝的飞入留到 0.80 之后依次进行。
+      const shrinkProgress = segEaseBy("inout", coverRaw, 0.55, 0.80);
       const zc = kiteConfig.zoom;
-      const coverScale = coverRaw < 0.62 ? 21 : lerp(21, zc.scale, shrinkProgress);
+      const coverScale = coverRaw < 0.55 ? 21 : lerp(21, zc.scale, shrinkProgress);
       // 落点偏移由 config 驱动（面板可调）
       const coverX = lerp(0, zc.x, shrinkProgress);
       const coverYBase = lerp(0, zc.y, shrinkProgress);
       const coverRotate = lerp(0, zc.rot, shrinkProgress);
       // 缩小时把残留模糊也收干净，定格时完全清晰
-      const blur = coverRaw < 0.62 ? blur80 : lerp(1, 0, shrinkProgress);
+      const blur = coverRaw < 0.55 ? blur80 : lerp(1, 0, shrinkProgress);
 
-      // 落定后轻轻晃动：缩小基本完成后启用，幅度随落定淡入；时间相位驱动
-      const settleAmt = segEaseBy("out", coverRaw, 0.86, 0.94);
+      // 落定后轻轻晃动：主风筝 0.80 缩小完成即启用（在两只小风筝飞入之前先稳住）
+      const settleAmt = segEaseBy("out", coverRaw, 0.80, 0.86);
       const t = performance.now() / 1000;
       const zSwayX = Math.sin(t * 0.9) * zc.swayX * settleAmt;
       const coverY = coverYBase + Math.sin(t * 0.7 + 1.1) * zc.swayY * settleAmt;
       const zSwayRot = Math.sin(t * 0.8 + 0.5) * zc.swayR * settleAmt;
 
-      // 草地淡出 / 天空淡入：交叉叠化，与风筝缩小同段发生
-      const skyReveal = segEaseBy("out", coverRaw, 0.64, 0.86);
+      // 草地淡出 / 天空淡入：交叉叠化，与风筝缩小同段发生（提前到 0.80 前完成）
+      const skyReveal = segEaseBy("out", coverRaw, 0.58, 0.78);
       const farmFadeOut = 1 - skyReveal;
 
-      // 文字：阶段2 淡入(0.30→0.42)，阶段4 缩小开始时淡出(0.62→0.74)
+      // 文字：阶段2 淡入(0.30→0.42)，阶段4 缩小开始时淡出(0.55→0.66)
       const textIn = segEaseBy("out", coverRaw, 0.30, 0.42);
-      const textOut = 1 - segEaseBy("out", coverRaw, 0.62, 0.74);
+      const textOut = 1 - segEaseBy("out", coverRaw, 0.55, 0.66);
       const textOpacity = textIn * textOut;
       // 文字淡入时轻微上浮落定，淡出时轻微上飘消散
       const textRise = (1 - textIn) * 12 - (1 - textOut) * 10;
 
-      // 两个天空小风筝：与天空同步淡入(skyReveal)，落定后各自随风轻晃
-      const skyKiteFade = skyReveal;
+      // 两个天空小风筝：在主风筝缩小落定后，依次「飞入」画面，
+      // 各自从屏外偏移(fromX/fromY/fromRot)飞到定位点，飞入完成后随风轻晃。
+      // 整体节奏：主风筝先落定 → sky1 飞入 → sky3 飞入 → 三只一起轻飘。
       const applySkyKite = (el, cfg, seed) => {
         if (!el) return;
-        const sx = Math.sin(t * 0.85 + seed) * cfg.swayX * settleAmt;
-        const sy = Math.sin(t * 0.65 + seed * 1.3) * cfg.swayY * settleAmt;
-        const sr = Math.sin(t * 0.75 + seed * 0.7) * cfg.swayR * settleAmt;
+        // 各自飞入进度（错开时间窗，依次进场）
+        const fly = segEaseBy("out", coverRaw, cfg.inStart, cfg.inEnd);
+        // 飞入起点偏移 → 0
+        const inX = lerp(cfg.fromX || 0, 0, fly);
+        const inY = lerp(cfg.fromY || 0, 0, fly);
+        const inRot = lerp(cfg.fromRot || 0, 0, fly);
+        // 飞入完成度决定轻晃幅度：完全飞入后才开始飘
+        const swaySettle = fly;
+        const sx = Math.sin(t * 0.85 + seed) * cfg.swayX * swaySettle;
+        const sy = Math.sin(t * 0.65 + seed * 1.3) * cfg.swayY * swaySettle;
+        const sr = Math.sin(t * 0.75 + seed * 0.7) * cfg.swayR * swaySettle;
         el.style.left = `${cfg.left}%`;
         el.style.top = `${cfg.top}%`;
         el.style.width = `${cfg.width}px`;
-        el.style.opacity = q(skyKiteFade);
-        el.style.transform = `translate3d(${q(sx)}vw, ${q(sy)}vh, 0) rotate(${q(sr)}deg)`;
-        el.style.willChange = skyKiteFade > 0.01 ? "transform, opacity" : "auto";
+        el.style.opacity = q(fly);
+        el.style.transform =
+          `translate3d(${q(inX + sx)}vw, ${q(inY + sy)}vh, 0) rotate(${q(inRot + sr)}deg)`;
+        el.style.willChange = fly > 0.01 && fly < 0.999 ? "transform, opacity" : "auto";
       };
+
+      // 终幕失传风险文字：两只小风筝都飞入落定后浮现(0.90→0.95)，
+      // 渐入渐出——短暂停留供阅读后，于本屏末尾(0.985→1.0)淡出退场。
+      const finalIn = segEaseBy("out", coverRaw, 0.90, 0.95);
+      const finalOut = 1 - segEaseBy("out", coverRaw, 0.985, 1.0);
+      const finalOpacity = finalIn * finalOut;
+      const finalRise = (1 - finalIn) * 14 - (1 - finalOut) * 12;
 
       kiteCoverStage.style.opacity = q(coverIn);
       if (kiteCoverFarm) kiteCoverFarm.style.opacity = q(farmFadeOut);
@@ -694,6 +719,11 @@
         kiteCoverText.style.opacity = q(textOpacity);
         kiteCoverText.style.transform = `translateY(${q(textRise)}px)`;
         kiteCoverText.style.willChange = textOpacity > 0.01 ? "opacity, transform" : "auto";
+      }
+      if (kiteFinalText) {
+        kiteFinalText.style.opacity = q(finalOpacity);
+        kiteFinalText.style.transform = `translate(-2%, ${q(finalRise)}px)`;
+        kiteFinalText.style.willChange = finalOpacity > 0.01 ? "opacity, transform" : "auto";
       }
       if (kiteCoverFarm) kiteCoverFarm.style.willChange = farmFadeOut > 0.01 && farmFadeOut < 0.99 ? "opacity" : "auto";
 
@@ -811,7 +841,7 @@
     if (kiteCoverSky) kiteCoverSky.style.opacity = 1;
     if (kiteCover) kiteCover.style.transform = "scale(0.72)";
     if (kiteCover) kiteCover.style.filter = "none";
-    // 减少动态效果：两个天空小风筝静态显示在配置位置，不晃动
+    // 减少动态效果：两个天空小风筝静态显示在配置位置（已落定，无飞入/晃动）
     [
       [skyKite1, kiteConfig.sky1],
       [skyKite3, kiteConfig.sky3],
@@ -826,6 +856,10 @@
     if (kiteCoverText) {
       kiteCoverText.style.opacity = 1;
       kiteCoverText.style.transform = "none";
+    }
+    if (kiteFinalText) {
+      kiteFinalText.style.opacity = 1;
+      kiteFinalText.style.transform = "translate(-2%, 0)";
     }
     if (beachStage) beachStage.style.opacity = 1;
     if (beachBg) beachBg.style.transform = "none";

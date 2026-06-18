@@ -1,10 +1,11 @@
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { frameOptions } from "../../data/frameOptions";
 import {
   getSurfaceLayoutAsset,
   usesSingleUnitCenterFallback,
 } from "../../data/surfaceAssets";
 import {
+  getWhistleEdgeAxisGroupIds,
   getWhistleEdgeChooseAsset,
   getWhistleFillLayers,
 } from "../../data/whistleAssets";
@@ -50,12 +51,8 @@ export function KitePreview({
     config.selectedWhistleSizes,
   );
   const isEdgeMode = config.whistleLayoutMode === "edge";
-  const canUseEdgeHitAreas =
-    isEdgeMode &&
-    (config.kiteShape === "hexagon" ||
-      config.kiteShape === "seven-star" ||
-      config.kiteShape === "eight-star" ||
-      config.kiteShape === "nineteen-star");
+  const edgeAxisGroupIds = getWhistleEdgeAxisGroupIds(config.kiteShape);
+  const canUseEdgeHitAreas = isEdgeMode && edgeAxisGroupIds.length > 0;
   const hoveredEdgeAsset = hoveredWhistleAxisGroupId
     ? getWhistleEdgeChooseAsset(config.kiteShape, hoveredWhistleAxisGroupId)
     : undefined;
@@ -71,7 +68,10 @@ export function KitePreview({
         <div
           className={`kite-preview-stage kite-frame-preview-unified kite-preview-shape-${config.kiteShape}`}
         >
-          <img alt="" className="kite-frame-preview-image" src={frameAsset} />
+          <ColorizedFrameLayer
+            frameAsset={frameAsset}
+            color={config.framePrimaryColor}
+          />
 
           {surfaceEnabled ? (
             <>
@@ -79,7 +79,7 @@ export function KitePreview({
               {centerPatternSelected ? (
                 <SurfaceLayoutLayer
                   area="center"
-                  color={config.centerPatternPrimaryColor}
+                  fillColor={config.centerPatternPrimaryColor}
                   kiteShape={config.kiteShape}
                   patternId={config.centerPatternId}
                 />
@@ -87,7 +87,7 @@ export function KitePreview({
               {cornerPatternSelected ? (
                 <SurfaceLayoutLayer
                   area="corner"
-                  color={config.cornerPatternPrimaryColor}
+                  fillColor={config.cornerPatternPrimaryColor}
                   kiteShape={config.kiteShape}
                   patternId={config.cornerPatternId}
                 />
@@ -152,27 +152,111 @@ export function KitePreview({
 
 interface SurfaceLayoutLayerProps {
   area: SurfaceArea;
-  color: string;
+  fillColor: string;
   kiteShape: KiteShape;
   patternId: SurfacePatternId;
 }
 
-function SurfaceLayoutLayer({ area, color, kiteShape, patternId }: SurfaceLayoutLayerProps) {
+function SurfaceLayoutLayer({
+  area,
+  fillColor,
+  kiteShape,
+  patternId,
+}: SurfaceLayoutLayerProps) {
   const asset = getSurfaceLayoutAsset(area, kiteShape, patternId);
   const usesFallback = usesSingleUnitCenterFallback(area, kiteShape);
+  const layerClassName = `kite-surface-pattern-layer kite-surface-${area}-layer${
+    usesFallback ? " kite-surface-single-unit-center" : ""
+  }`;
+
+  return (
+    <RecoloredSurfaceSvgLayer
+      asset={asset}
+      className={layerClassName}
+      fillColor={fillColor}
+    />
+  );
+}
+
+interface ColorizedFrameLayerProps {
+  frameAsset: string;
+  color: string;
+}
+
+function ColorizedFrameLayer({ frameAsset, color }: ColorizedFrameLayerProps) {
+  const maskStyle = {
+    "--frame-mask": `url("${frameAsset}")`,
+  } as CSSProperties;
 
   return (
     <div
       aria-hidden="true"
-      className={`kite-surface-pattern-layer kite-surface-${area}-layer${
-        usesFallback ? " kite-surface-single-unit-center" : ""
-      }`}
-      style={
-        {
-          "--surface-mask": `url("${asset}")`,
-          backgroundColor: color,
-        } as CSSProperties
-      }
+      className="kite-frame-preview-image kite-frame-preview-color"
+      style={{ ...maskStyle, backgroundColor: color }}
     />
   );
+}
+
+interface RecoloredSurfaceSvgLayerProps {
+  asset: string;
+  className: string;
+  fillColor: string;
+}
+
+function RecoloredSurfaceSvgLayer({
+  asset,
+  className,
+  fillColor,
+}: RecoloredSurfaceSvgLayerProps) {
+  const [recoloredAsset, setRecoloredAsset] = useState(asset);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch(asset)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Unable to load surface SVG: ${asset}`);
+        }
+
+        return response.text();
+      })
+      .then((svgText) => {
+        if (!isMounted) {
+          return;
+        }
+
+        const recoloredSvg = recolorSurfaceSvg(svgText, fillColor);
+        setRecoloredAsset(
+          `data:image/svg+xml;charset=utf-8,${encodeURIComponent(recoloredSvg)}`,
+        );
+      })
+      .catch((error) => {
+        console.warn("Failed to recolor surface SVG.", error);
+        if (isMounted) {
+          setRecoloredAsset(asset);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [asset, fillColor]);
+
+  return (
+    <img
+      aria-hidden="true"
+      alt=""
+      className={`${className} kite-surface-svg-layer`}
+      src={recoloredAsset}
+    />
+  );
+}
+
+function recolorSurfaceSvg(svgText: string, fillColor: string): string {
+  return svgText
+    .replace(/\sstroke="(?!none)[^"]*"/gi, ` stroke="${fillColor}"`)
+    .replace(/\sfill="(?!none)[^"]*"/gi, ` fill="${fillColor}"`)
+    .replace(/stroke:\s*(?!none)[^;"}]+/gi, `stroke: ${fillColor}`)
+    .replace(/fill:\s*(?!none)[^;"}]+/gi, `fill: ${fillColor}`);
 }

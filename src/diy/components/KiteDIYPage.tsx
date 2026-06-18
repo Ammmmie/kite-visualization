@@ -7,10 +7,12 @@ import type {
   KiteDIYConfig,
   KiteShape,
   PanelKey,
+  SurfacePanelKey,
   SurfacePatternId,
   WhistleEdgeAxisGroupId,
   WhistleFillDensity,
   WhistleLayoutMode,
+  WhistlePanelKey,
   WhistleSize,
 } from "../types/kite";
 import { FramePanel } from "./panels/FramePanel";
@@ -25,6 +27,7 @@ const panelLabels: Record<PanelKey, string> = {
 };
 
 const diySteps: PanelKey[] = ["frame", "surface", "whistle"];
+const hexagonFamilyShapes = new Set<KiteShape>(["hexagon", "seven-star", "nineteen-star"]);
 
 interface KiteDIYPageProps {
   mode?: "embedded" | "standalone";
@@ -42,17 +45,27 @@ export function KiteDIYPage({
   const [previewEnabled, setPreviewEnabled] = useState(true);
   const [surfaceEnabled, setSurfaceEnabled] = useState(false);
   const [whistlesEnabled, setWhistlesEnabled] = useState(false);
+  const [frameShapeSelected, setFrameShapeSelected] = useState(false);
   const [centerPatternSelected, setCenterPatternSelected] = useState(false);
   const [cornerPatternSelected, setCornerPatternSelected] = useState(false);
   const [centerColorCustomized, setCenterColorCustomized] = useState(false);
   const [cornerColorCustomized, setCornerColorCustomized] = useState(false);
+  const [activeSurfacePanel, setActiveSurfacePanel] = useState<SurfacePanelKey>("intro");
+  const [activeWhistlePanel, setActiveWhistlePanel] = useState<WhistlePanelKey>("intro");
   const [hoveredWhistleAxisGroupId, setHoveredWhistleAxisGroupId] =
     useState<WhistleEdgeAxisGroupId | null>(null);
+  const baseUnitFamily = hexagonFamilyShapes.has(config.kiteShape) ? "hexagon" : "octagon";
 
   function setActivePanel(activePanel: PanelKey) {
     if (activePanel === "surface") {
       setPreviewEnabled(true);
       setSurfaceEnabled(true);
+      setActiveSurfacePanel("intro");
+    }
+
+    if (activePanel === "whistle") {
+      setWhistlesEnabled(true);
+      setActiveWhistlePanel("intro");
     }
 
     setConfig((currentConfig) => ({
@@ -79,6 +92,16 @@ export function KiteDIYPage({
   function goToNextStep() {
     const currentIndex = diySteps.indexOf(config.activePanel);
 
+    if (config.activePanel === "surface" && activeSurfacePanel !== "intro") {
+      setActiveSurfacePanel("intro");
+      return;
+    }
+
+    if (config.activePanel === "whistle" && activeWhistlePanel !== "intro") {
+      setActiveWhistlePanel("intro");
+      return;
+    }
+
     if (currentIndex < diySteps.length - 1) {
       goToStep(diySteps[currentIndex + 1]);
       return;
@@ -93,9 +116,11 @@ export function KiteDIYPage({
 
   function handleShapeChange(kiteShape: KiteShape) {
     setPreviewEnabled(true);
+    setFrameShapeSelected(true);
     updateConfig((currentConfig) => ({
       ...currentConfig,
       kiteShape,
+      selectedWhistleAxisGroupIds: [],
     }));
   }
 
@@ -156,6 +181,39 @@ export function KiteDIYPage({
     updateConfig((currentConfig) => ({
       ...currentConfig,
       whistleFillDensity,
+    }));
+  }
+
+  function handleWhistleDensityPercentChange(whistleDensityPercent: number) {
+    const clampedPercent = Math.max(0, Math.min(100, whistleDensityPercent));
+    const whistleFillDensity =
+      clampedPercent <= 33 ? "low" : clampedPercent <= 66 ? "mid" : "high";
+
+    setPreviewEnabled(true);
+    setWhistlesEnabled(true);
+    updateConfig((currentConfig) => ({
+      ...currentConfig,
+      whistleDensity: clampedPercent / 100,
+      whistleFillDensity,
+    }));
+  }
+
+  function handleWhistlePanelChange(nextWhistlePanel: WhistlePanelKey) {
+    setActiveWhistlePanel(nextWhistlePanel);
+
+    if (nextWhistlePanel === "intro") {
+      return;
+    }
+
+    const whistleLayoutMode: WhistleLayoutMode =
+      nextWhistlePanel === "edge" ? "edge" : "horizontal-staggered";
+
+    setPreviewEnabled(true);
+    setWhistlesEnabled(true);
+    updateConfig((currentConfig) => ({
+      ...currentConfig,
+      whistleLayoutMode,
+      selectedWhistleSizes: currentConfig.selectedWhistleSizes,
     }));
   }
 
@@ -228,8 +286,16 @@ export function KiteDIYPage({
 
         <div className="diy-title-lockup" aria-hidden="true">
           <p>制作风筝</p>
-          <span className="diy-title-icon diy-title-icon-primary" />
-          <span className="diy-title-icon diy-title-icon-muted" />
+          <span
+            className={`diy-title-icon diy-title-icon-hexagon${
+              baseUnitFamily === "hexagon" ? " diy-title-icon-active" : ""
+            }`}
+          />
+          <span
+            className={`diy-title-icon diy-title-icon-octagon${
+              baseUnitFamily === "octagon" ? " diy-title-icon-active" : ""
+            }`}
+          />
         </div>
 
         <nav className="diy-step-tabs" aria-label="DIY 模块">
@@ -269,7 +335,13 @@ export function KiteDIYPage({
 
         <aside className="diy-info-panel" aria-label="DIY 说明和控制面板">
           <div className="diy-info-header">
-            <h2>ABOUT</h2>
+            <h2>
+              {config.activePanel === "surface" && activeSurfacePanel !== "intro"
+                ? ""
+                : config.activePanel === "whistle"
+                  ? ""
+                  : "ABOUT"}
+            </h2>
             <button className="diy-ok-button" onClick={goToNextStep} type="button">
               OK
             </button>
@@ -279,47 +351,34 @@ export function KiteDIYPage({
             {config.activePanel === "frame" ? (
               <FrameAboutContent
                 onShapeChange={handleShapeChange}
-                selectedShape={config.kiteShape}
+                selectedShape={frameShapeSelected ? config.kiteShape : null}
               />
             ) : null}
 
             {config.activePanel === "surface" ? (
-              <div className="diy-module-panel diy-module-panel-surface">
-                <div className="diy-module-copy">
-                  <h3>鹞面</h3>
-                  <p>选择星中与星角纹样，并为图案指定颜色。左侧预览会实时叠加到当前骨架上。</p>
-                </div>
-                <SurfacePanel
-                  centerPatternSelected={centerPatternSelected}
-                  centerPlaceholderColor={
-                    centerColorCustomized ? config.centerPatternPrimaryColor : "#B4B4B4"
-                  }
-                  config={config}
-                  cornerPatternSelected={cornerPatternSelected}
-                  cornerPlaceholderColor={
-                    cornerColorCustomized ? config.cornerPatternPrimaryColor : "#B4B4B4"
-                  }
-                  onCenterPatternChange={handleCenterPatternChange}
-                  onColorChange={handleSurfaceColorChange}
-                  onCornerPatternChange={handleCornerPatternChange}
-                />
-              </div>
+              <SurfacePanel
+                activeSurfacePanel={activeSurfacePanel}
+                centerPatternSelected={centerPatternSelected}
+                config={config}
+                cornerPatternSelected={cornerPatternSelected}
+                onCenterPatternChange={handleCenterPatternChange}
+                onColorChange={handleSurfaceColorChange}
+                onCornerPatternChange={handleCornerPatternChange}
+                onSurfacePanelChange={setActiveSurfacePanel}
+              />
             ) : null}
 
             {config.activePanel === "whistle" ? (
-              <div className="diy-module-panel diy-module-panel-whistle">
-                <div className="diy-module-copy">
-                  <h3>哨口</h3>
-                  <p>选择覆盖式密度，或切换边缘式后在左侧风筝主轴上悬停和点击来选择哨口组。</p>
-                </div>
-                <WhistlePanel
-                  config={config}
-                  onDensityChange={handleWhistleFillDensityChange}
-                  onEdgeToggle={handleEdgeToggle}
-                  onLayoutChange={handleWhistleLayoutChange}
-                  onWhistleSizeToggle={handleWhistleSizeToggle}
-                />
-              </div>
+              <WhistlePanel
+                activeWhistlePanel={activeWhistlePanel}
+                config={config}
+                onDensityChange={handleWhistleFillDensityChange}
+                onDensityPercentChange={handleWhistleDensityPercentChange}
+                onEdgeToggle={handleEdgeToggle}
+                onLayoutChange={handleWhistleLayoutChange}
+                onPanelChange={handleWhistlePanelChange}
+                onWhistleSizeToggle={handleWhistleSizeToggle}
+              />
             ) : null}
           </div>
         </aside>
@@ -333,15 +392,17 @@ export type SurfaceColorField =
   | "centerPatternSecondaryColor"
   | "cornerPatternPrimaryColor"
   | "cornerPatternSecondaryColor"
+  | "framePrimaryColor"
+  | "frameSecondaryColor"
   | "surfaceBaseColor";
 
 interface FrameAboutContentProps {
   onShapeChange: (shape: KiteShape) => void;
-  selectedShape: KiteShape;
+  selectedShape: KiteShape | null;
 }
 
 function FrameAboutContent({ onShapeChange, selectedShape }: FrameAboutContentProps) {
-  const info = frameInfo[selectedShape];
+  const info = selectedShape ? frameInfo[selectedShape] : frameInfo["seven-star"];
 
   return (
     <div className="frame-about-content">
@@ -368,9 +429,25 @@ interface StepDialProps {
 
 function StepDial({ activePanel, onBack, onNext }: StepDialProps) {
   const currentStep = diySteps.indexOf(activePanel) + 1;
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
+  const progressOffset = circumference * (1 - currentStep / diySteps.length);
 
   return (
     <div className="diy-step-dial" aria-label={`当前步骤 ${currentStep} / 3`}>
+      <svg className="diy-step-dial-progress" viewBox="0 0 100 100" aria-hidden="true">
+        <circle className="diy-step-dial-track" cx="50" cy="50" r={radius} />
+        <circle
+          className="diy-step-dial-meter"
+          cx="50"
+          cy="50"
+          r={radius}
+          style={{
+            strokeDasharray: circumference,
+            strokeDashoffset: progressOffset,
+          }}
+        />
+      </svg>
       <button className="diy-step-dial-action diy-step-dial-back" onClick={onBack} type="button">
         <span>back</span>
         <strong>{currentStep}</strong>

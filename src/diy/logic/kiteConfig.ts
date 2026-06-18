@@ -22,6 +22,9 @@ export const defaultKiteDIYConfig: KiteDIYConfig = {
   cornerPatternPrimaryColor: "#FFFFCC",
   cornerPatternSecondaryColor: "#F7F1D4",
 
+  framePrimaryColor: "#FFFFFF",
+  frameSecondaryColor: "#FFFFFF",
+
   surfaceBaseColor: "#BFE6E6",
 
   whistleLayoutMode: "horizontal-staggered",
@@ -130,6 +133,8 @@ const whistleAxisGroupIds = new Set<WhistleEdgeAxisGroupId>([
   "choose-g",
   "choose-h",
   "choose-i",
+  "choose-j",
+  "choose-k",
 ]);
 const whistleFillDensities = new Set<WhistleFillDensity>(["low", "mid", "high"]);
 const whistleSizes = new Set<WhistleSize>(["small", "medium", "large"]);

@@ -886,27 +886,46 @@ function drawFlare(kx,ky){
 //  鐢婚潰涓ぎ鍋忎笂,澶у皬閫備腑
 let kXs=680,kYs=390,kRotS=-0.42;
 let wSpd=0.5,wPow=0.5,wFrq=0.8;
+let gust=0; // 平滑后的阵风强度，由手速极缓慢驱动
 
 function rotateOffset(x,y,angle){
   const cos=Math.cos(angle),sin=Math.sin(angle);
   return {x:x*cos-y*sin,y:x*sin+y*cos};
 }
 
-function drawKite(t){
+function drawKite(t,dt){
   kCtx.clearRect(0,0,W,H);
+  // dtScale: 当前帧相对 60fps 的时长倍率，让所有平滑与帧率无关；限幅防掉帧跳变
+  const dtScale=Math.min(Math.max((dt||1/60)*60,0.2),3);
   if(leftPresent){
-    wSpd+=(pitch-wSpd)*.05;wPow+=(volume-wPow)*.05;wFrq+=(handSpeed*3+0.3-wFrq)*.04;
+    // wFrq 不再被 handSpeed 直接推高，改为温和地由 pitch 决定，避免手快时频率飙升
+    wSpd+=(pitch-wSpd)*.04;wPow+=(volume-wPow)*.04;wFrq+=(0.5+pitch*0.4-wFrq)*.03;
   }
   const baseX=680,baseY=390;
   const floatAmp=7+wSpd*8;
+  // handSpeed 仅做极轻微的“随风加强”，并经过重度平滑，绝不直接进高频项
   const visualHandSpeed=Math.min(handSpeed,0.035);
-  const shake=visualHandSpeed*10;
-  const tX=baseX+Math.sin(t*.48)*9+Math.cos(t*3.2)*shake*.18;
-  const tY=baseY-wSpd*14+Math.sin(t*wFrq*Math.PI*1.4)*floatAmp+Math.sin(t*2.8)*shake*.22;
-  kXs+=(tX-kXs)*.08;kYs+=(tY-kYs)*.08;
+  gust+=(visualHandSpeed-gust)*.03;            // 缓慢累积的阵风强度
+  const gustAmt=Math.min(gust*6,0.5);          // 限幅，最多让摇摆幅度 +50%
+  // ── 缓慢游走：让中心点在中间区域里克制漂移，不死守一个点
+  // 用几个周期很长且互不成整数倍的慢正弦叠加，轨迹自然、不会规律循环
+  // 振幅 = 漂移范围（像素），频率越小漂得越慢
+  const wanderX=Math.sin(t*.055)*70+Math.sin(t*.031+2.1)*38+Math.sin(t*.017+4.0)*22;
+  const wanderY=Math.sin(t*.043+1.0)*38+Math.sin(t*.026+3.3)*22+Math.sin(t*.013+0.5)*14;
+  // 只保留低频正弦：主摇摆 + 一个更慢的次摆，营造随风缓飘而非颤抖
+  const sway=Math.sin(t*.42)*9*(1+gustAmt*.4)+Math.sin(t*.23+1.3)*5;
+  const bob=Math.sin(t*wFrq*Math.PI*0.6)*floatAmp*(1+gustAmt*.3);
+  const tX=baseX+wanderX+sway;
+  const tY=baseY+wanderY-wSpd*14+bob;
+  // 缓动改为基于 dt 的指数平滑，掉帧时表现一致；系数更小 → 更顺滑有惯性
+  const followX=1-Math.pow(1-0.06,dtScale);
+  const followY=1-Math.pow(1-0.06,dtScale);
+  kXs+=(tX-kXs)*followX;kYs+=(tY-kYs)*followY;
   const baseKiteRotation=-0.42;
-  const kRot=baseKiteRotation+Math.sin(t*wFrq*Math.PI*1.4)*(0.018+visualHandSpeed*.35)+Math.sin(t*.32)*.012;
-  kRotS+=(kRot-kRotS)*.05;
+  // 旋转只跟随低频摇摆，handSpeed 耦合系数从 .35 降到 .04，杜绝猛甩
+  const kRot=baseKiteRotation+Math.sin(t*wFrq*Math.PI*0.6)*(0.016+gustAmt*.04)+Math.sin(t*.28)*.012;
+  const followRot=1-Math.pow(1-0.045,dtScale);
+  kRotS+=(kRot-kRotS)*followRot;
 
   // ── 风筝尺寸
   const kW=460,kH=468;
@@ -1120,9 +1139,10 @@ function onResults(res){
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?//  MAIN LOOP
 let lastT=0;
 function loop(ts){
+  if(!lastT)lastT=ts;
   const dt=(ts-lastT)/1000;lastT=ts;
   floatT=ts*.001;frameN++;
-  const{x:kx,y:ky}=drawKite(floatT);
+  const{x:kx,y:ky}=drawKite(floatT,dt);
   drawFlare(kx,ky);
   updateParticles(kx,ky);
   updateAudio();
